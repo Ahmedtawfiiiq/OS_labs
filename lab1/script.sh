@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#backup interval in seconds
+backupTime=$1
+
+#maximum number of backup folders
+maxBackups=$2
+
 #path of parent folder
 f=/home/ahmed/Documents
 
@@ -22,7 +28,7 @@ cp -a $dir/. $currentTime
 
 while true
 do
-	sleep 5s
+	sleep $backupTime
 	ls -lR $dir > $f/directory-info.new
 	flag=$(diff $f/directory-info.last $f/directory-info.new)
 	if [ "$flag" != "" ]
@@ -36,5 +42,9 @@ do
 	else
 		echo "file is not modified"
 	fi
-	rm `ls -t | awk 'NR>5'`
+	backups=$(ls | wc -l)
+	if [ "$backups" == "$(( $maxBackups + 1))" ]
+	then
+		rm -r "$(ls -t | tail -1)"
+	fi
 done
