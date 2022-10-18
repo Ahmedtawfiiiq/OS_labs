@@ -1,16 +1,16 @@
 #!/bin/bash
 
 #backup interval in seconds
-backupTime=$1
+backupTime=$3
 
 #maximum number of backup folders
-maxBackups=$2
+maxBackups=$4
 
-#path of parent folder
+#path where directories information can be stored
 f=/home/ahmed/Documents
 
 #path of source files
-dir=/home/ahmed/Documents/dir
+dir=$1
 
 #save directory info
 ls -lR $dir > $f/directory-info.last
@@ -19,7 +19,12 @@ ls -lR $dir > $f/directory-info.last
 currentTime=$(date +%Y-%m-%d-%H-%M-%S)
 
 #path of destination folder
-backupdir=/home/ahmed/Documents/backupdir
+backupdir=$2
+
+if [ ! -d "$backupdir" ] 
+then
+	mkdir $backupdir
+fi
 
 #copy source files into destination folder
 cd $backupdir
