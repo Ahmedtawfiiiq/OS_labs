@@ -1,8 +1,3 @@
-# how to use run command in makefile
-# make run dir=/home/ahmed/Documents/dir backupdir=/home/ahmed/Documents/backupdir/ interval-secs=2 max-backups=4
-# * * * * * /bin/bash /home/ahmed/Documents/script.sh /home/ahmed/Documents/dir /home/ahmed/Documents/backupdir 2 4
-
-
 dir=""
 backupdir=""
 interval-secs=""
