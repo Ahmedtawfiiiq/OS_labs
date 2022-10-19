@@ -1,10 +1,7 @@
 #!/bin/bash
 
-#backup interval in seconds
-backupTime=$3
-
 #maximum number of backup folders
-maxBackups=$4
+maxBackups=$3
 
 #path where directories information can be stored
 f=/home/ahmed/Documents
@@ -33,7 +30,6 @@ cp -a $dir/. $currentTime
 
 while true
 do
-	sleep $backupTime
 	ls -lR $dir > $f/directory-info.new
 	flag=$(diff $f/directory-info.last $f/directory-info.new)
 	if [ "$flag" != "" ]
