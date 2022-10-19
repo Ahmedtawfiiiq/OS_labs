@@ -36,7 +36,7 @@ To run this script using cron job every 1 minute run
 
 ```bash
   # write this in cron job file
-  * * * * * /bin/bash shellScriptDirectoryPath sourceDirectoryPath backupDirectoryPath timeInterval maxBackupDirectories
+  * * * * * /bin/bash shellScriptDirectoryPath sourceDirectoryPath backupDirectoryPath maxBackupDirectories
 
 ```
 
