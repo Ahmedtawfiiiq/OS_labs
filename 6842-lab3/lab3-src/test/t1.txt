@@ -1,14 +1,11 @@
-total 36
-drwxrwxr-x 2 ahmed ahmed  4096 Nov  3 03:07 .
-drwxrwxrwx 5 ahmed ahmed  4096 Nov  3 03:04 ..
--rw-rw-r-- 1 ahmed ahmed     0 Nov  3 03:07 t1.txt
--rw-rw-r-- 1 ahmed ahmed   800 Nov  3 01:46 t2.txt
--rwxrwxr-x 1 ahmed ahmed 18248 Nov  3 02:26 test
--rw-rw-r-- 1 ahmed ahmed   588 Nov  3 02:26 test.cc
-total 40
-drwxrwxr-x 2 ahmed ahmed  4096 Nov  3 03:07 .
-drwxrwxrwx 5 ahmed ahmed  4096 Nov  3 03:04 ..
--rw-rw-r-- 1 ahmed ahmed   305 Nov  3 03:07 t1.txt
--rw-rw-r-- 1 ahmed ahmed   800 Nov  3 01:46 t2.txt
--rwxrwxr-x 1 ahmed ahmed 18248 Nov  3 02:26 test
--rw-rw-r-- 1 ahmed ahmed   588 Nov  3 02:26 test.cc
+.
+os-labs
+..
+PID controller *
+Engineering Optimization: Theory and Practice.pdf
+
+ls /home/ahmed/Documents/ >> /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/lab3-src/test/t1.txt.
+os-labs
+..
+PID controller *
+Engineering Optimization: Theory and Practice.pdf

@@ -13,7 +13,7 @@
 
 %token	<string_val> WORD
 
-%token 	NOTOKEN GREAT NEWLINE 
+%token 	NOTOKEN GREAT GGREAT NEWLINE PIPE
 
 %union	{
 		char   *string_val;
@@ -45,7 +45,7 @@ command: simple_command
         ;
 
 simple_command:	
-	command_and_args iomodifier_opt NEWLINE {
+	command_and_args iomodifier_opt iomodifier_append iomodifier_pipe NEWLINE {
 		printf("   Yacc: Execute command\n");
 		Command::_currentCommand.execute();
 	}
@@ -56,7 +56,7 @@ simple_command:
 command_and_args:
 	command_word arg_list {
 		Command::_currentCommand.
-			insertSimpleCommand( Command::_currentSimpleCommand );
+		insertSimpleCommand( Command::_currentSimpleCommand );
 	}
 	;
 
@@ -67,18 +67,16 @@ arg_list:
 
 argument:
 	WORD {
-               printf("   Yacc: insert argument \"%s\"\n", $1);
-
-	       Command::_currentSimpleCommand->insertArgument( $1 );\
+        printf("   Yacc: insert argument \"%s\"\n", $1);
+		Command::_currentSimpleCommand->insertArgument( $1 );\
 	}
 	;
 
 command_word:
 	WORD {
-               printf("   Yacc: insert command \"%s\"\n", $1);
-	       
-	       Command::_currentSimpleCommand = new SimpleCommand();
-	       Command::_currentSimpleCommand->insertArgument( $1 );
+        printf("   Yacc: insert command \"%s\"\n", $1);
+	    Command::_currentSimpleCommand = new SimpleCommand();
+	    Command::_currentSimpleCommand->insertArgument( $1 );
 	}
 	;
 
@@ -86,6 +84,28 @@ iomodifier_opt:
 	GREAT WORD {
 		printf("   Yacc: insert output \"%s\"\n", $2);
 		Command::_currentCommand._outFile = $2;
+		Command::_currentCommand.flagList = 0;
+		Command::_currentCommand.flagRewrite = 1;
+	}
+	| /* can be empty */ 
+	;
+
+iomodifier_append:
+	GGREAT WORD {
+		printf("   Yacc: insert output append \"%s\"\n", $2);
+		Command::_currentCommand._outFile = $2;
+		Command::_currentCommand.flagList = 0;
+		Command::_currentCommand.flagAppend = 1;
+	}
+	| /* can be empty */ 
+	;
+
+iomodifier_pipe:
+	PIPE WORD WORD{
+		printf("   Yacc: insert pipe input \"%s\"\n", $3);
+		Command::_currentCommand._pipeText = $3;
+		Command::_currentCommand.flagCat = 0;
+		Command::_currentCommand.flagPipe = 1;
 	}
 	| /* can be empty */ 
 	;

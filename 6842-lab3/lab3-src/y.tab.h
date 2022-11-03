@@ -52,14 +52,18 @@ extern int yydebug;
     WORD = 258,
     NOTOKEN = 259,
     GREAT = 260,
-    NEWLINE = 261
+    GGREAT = 261,
+    NEWLINE = 262,
+    PIPE = 263
   };
 #endif
 /* Tokens.  */
 #define WORD 258
 #define NOTOKEN 259
 #define GREAT 260
-#define NEWLINE 261
+#define GGREAT 261
+#define NEWLINE 262
+#define PIPE 263
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -70,7 +74,7 @@ union YYSTYPE
 		char   *string_val;
 	
 
-#line 74 "y.tab.h"
+#line 78 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

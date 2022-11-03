@@ -115,14 +115,18 @@ extern int yydebug;
     WORD = 258,
     NOTOKEN = 259,
     GREAT = 260,
-    NEWLINE = 261
+    GGREAT = 261,
+    NEWLINE = 262,
+    PIPE = 263
   };
 #endif
 /* Tokens.  */
 #define WORD 258
 #define NOTOKEN 259
 #define GREAT 260
-#define NEWLINE 261
+#define GGREAT 261
+#define NEWLINE 262
+#define PIPE 263
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -133,7 +137,7 @@ union YYSTYPE
 		char   *string_val;
 	
 
-#line 137 "y.tab.c"
+#line 141 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -160,7 +164,7 @@ extern "C"
 #include <stdio.h>
 #include "command.h"
 
-#line 164 "y.tab.c"
+#line 168 "y.tab.c"
 
 
 #ifdef short
@@ -465,19 +469,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  11
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   15
+#define YYLAST   19
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  7
+#define YYNTOKENS  9
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  10
+#define YYNNTS  12
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  15
+#define YYNRULES  19
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  20
+#define YYNSTATES  27
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   261
+#define YYMAXUTOK   263
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -515,7 +519,7 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6
+       5,     6,     7,     8
 };
 
 #if YYDEBUG
@@ -523,7 +527,7 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int8 yyrline[] =
 {
        0,    36,    36,    40,    41,    44,    48,    52,    53,    57,
-      64,    65,    69,    77,    86,    90
+      64,    65,    69,    76,    84,    90,    94,   100,   104,   110
 };
 #endif
 
@@ -532,10 +536,10 @@ static const yytype_int8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "WORD", "NOTOKEN", "GREAT", "NEWLINE",
-  "$accept", "goal", "commands", "command", "simple_command",
-  "command_and_args", "arg_list", "argument", "command_word",
-  "iomodifier_opt", YY_NULLPTR
+  "$end", "error", "$undefined", "WORD", "NOTOKEN", "GREAT", "GGREAT",
+  "NEWLINE", "PIPE", "$accept", "goal", "commands", "command",
+  "simple_command", "command_and_args", "arg_list", "argument",
+  "command_word", "iomodifier_opt", "iomodifier_append", "iomodifier_pipe", YY_NULLPTR
 };
 #endif
 
@@ -544,11 +548,11 @@ static const char *const yytname[] =
    (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_int16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261
+       0,   256,   257,   258,   259,   260,   261,   262,   263
 };
 # endif
 
-#define YYPACT_NINF (-2)
+#define YYPACT_NINF (-3)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -562,8 +566,9 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       1,    -1,    -2,    -2,     8,     0,    -2,    -2,     4,    -2,
-      -2,    -2,    -2,     7,     5,     9,    -2,    -2,    -2,    -2
+       1,    -2,    -3,    -3,     6,     0,    -3,    -3,     4,    -3,
+      -3,    -3,    -3,     7,     5,     9,    -3,    10,     8,    -3,
+      -3,    -3,    11,    12,    14,    -3,    -3
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -572,19 +577,22 @@ static const yytype_int8 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        0,     0,    13,     7,     0,     0,     3,     5,    15,    11,
-       8,     1,     4,     0,     0,     9,    14,     6,    12,    10
+       8,     1,     4,     0,    17,     9,    14,     0,    19,    12,
+      10,    16,     0,     0,     0,     6,    18
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -2,    -2,    -2,    10,    -2,    -2,    -2,    -2,    -2,    -2
+      -3,    -3,    -3,    13,    -3,    -3,    -3,    -3,    -3,    -3,
+      -3,    -3
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6,     7,     8,    15,    19,     9,    14
+      -1,     4,     5,     6,     7,     8,    15,    20,     9,    14,
+      18,    23
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -592,36 +600,37 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      -2,     1,     1,     2,     2,    10,     3,     3,    11,    13,
-      16,    17,    18,     0,     0,    12
+      -2,     1,     1,     2,     2,    10,    11,     3,     3,    13,
+      16,    17,    19,    21,    24,     0,    22,    26,    12,    25
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     1,     1,     3,     3,     6,     6,     6,     0,     5,
-       3,     6,     3,    -1,    -1,     5
+       0,     1,     1,     3,     3,     7,     0,     7,     7,     5,
+       3,     6,     3,     3,     3,    -1,     8,     3,     5,     7
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     1,     3,     6,     8,     9,    10,    11,    12,    15,
-       6,     0,    10,     5,    16,    13,     3,     6,     3,    14
+       0,     1,     3,     7,    10,    11,    12,    13,    14,    17,
+       7,     0,    12,     5,    18,    15,     3,     6,    19,     3,
+      16,     3,     8,    20,     3,     7,     3
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,     7,     8,     9,     9,    10,    11,    11,    11,    12,
-      13,    13,    14,    15,    16,    16
+       0,     9,    10,    11,    11,    12,    13,    13,    13,    14,
+      15,    15,    16,    17,    18,    18,    19,    19,    20,    20
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     1,     3,     1,     2,     2,
-       2,     0,     1,     1,     2,     0
+       0,     2,     1,     1,     2,     1,     5,     1,     2,     2,
+       2,     0,     1,     1,     2,     0,     2,     0,     3,     0
 };
 
 
@@ -1318,60 +1327,82 @@ yyreduce:
     {
   case 6:
 #line 48 "shell.y"
-                                                {
+                                                                                  {
 		printf("   Yacc: Execute command\n");
 		Command::_currentCommand.execute();
 	}
-#line 1326 "y.tab.c"
+#line 1335 "y.tab.c"
     break;
 
   case 8:
 #line 53 "shell.y"
                         { yyerrok; }
-#line 1332 "y.tab.c"
+#line 1341 "y.tab.c"
     break;
 
   case 9:
 #line 57 "shell.y"
                               {
 		Command::_currentCommand.
-			insertSimpleCommand( Command::_currentSimpleCommand );
+		insertSimpleCommand( Command::_currentSimpleCommand );
 	}
-#line 1341 "y.tab.c"
+#line 1350 "y.tab.c"
     break;
 
   case 12:
 #line 69 "shell.y"
              {
-               printf("   Yacc: insert argument \"%s\"\n", (yyvsp[0].string_val));
-
-	       Command::_currentSimpleCommand->insertArgument( (yyvsp[0].string_val) );\
+        printf("   Yacc: insert argument \"%s\"\n", (yyvsp[0].string_val));
+		Command::_currentSimpleCommand->insertArgument( (yyvsp[0].string_val) );\
 	}
-#line 1351 "y.tab.c"
+#line 1359 "y.tab.c"
     break;
 
   case 13:
-#line 77 "shell.y"
+#line 76 "shell.y"
              {
-               printf("   Yacc: insert command \"%s\"\n", (yyvsp[0].string_val));
-	       
-	       Command::_currentSimpleCommand = new SimpleCommand();
-	       Command::_currentSimpleCommand->insertArgument( (yyvsp[0].string_val) );
+        printf("   Yacc: insert command \"%s\"\n", (yyvsp[0].string_val));
+	    Command::_currentSimpleCommand = new SimpleCommand();
+	    Command::_currentSimpleCommand->insertArgument( (yyvsp[0].string_val) );
 	}
-#line 1362 "y.tab.c"
+#line 1369 "y.tab.c"
     break;
 
   case 14:
-#line 86 "shell.y"
+#line 84 "shell.y"
                    {
 		printf("   Yacc: insert output \"%s\"\n", (yyvsp[0].string_val));
 		Command::_currentCommand._outFile = (yyvsp[0].string_val);
+		Command::_currentCommand.flagList = 0;
+		Command::_currentCommand.flagRewrite = 1;
 	}
-#line 1371 "y.tab.c"
+#line 1380 "y.tab.c"
+    break;
+
+  case 16:
+#line 94 "shell.y"
+                    {
+		printf("   Yacc: insert output append \"%s\"\n", (yyvsp[0].string_val));
+		Command::_currentCommand._outFile = (yyvsp[0].string_val);
+		Command::_currentCommand.flagList = 0;
+		Command::_currentCommand.flagAppend = 1;
+	}
+#line 1391 "y.tab.c"
+    break;
+
+  case 18:
+#line 104 "shell.y"
+                      {
+		printf("   Yacc: insert pipe input \"%s\"\n", (yyvsp[0].string_val));
+		Command::_currentCommand._pipeText = (yyvsp[0].string_val);
+		Command::_currentCommand.flagCat = 0;
+		Command::_currentCommand.flagPipe = 1;
+	}
+#line 1402 "y.tab.c"
     break;
 
 
-#line 1375 "y.tab.c"
+#line 1406 "y.tab.c"
 
       default: break;
     }
@@ -1603,7 +1634,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 93 "shell.y"
+#line 113 "shell.y"
 
 
 void
