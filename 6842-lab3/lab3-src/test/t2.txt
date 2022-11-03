@@ -1,0 +1,16 @@
+total 300
+-rw-rw-rw- 1 ahmed ahmed  3690 Nov  3 01:40 command.cc
+-rw-rw-rw- 1 ahmed ahmed   738 Jan  2  2002 command.h
+-rw-rw-r-- 1 ahmed ahmed 30376 Nov  3 01:07 command.o
+drwxrwxrwx 2 ahmed ahmed  4096 Oct 20 18:48 examples
+-rw-rw-r-- 1 ahmed ahmed 44704 Nov  3 00:59 lex.yy.c
+-rw-rw-r-- 1 ahmed ahmed 43256 Nov  3 00:59 lex.yy.o
+-rw-rw-rw- 1 ahmed ahmed   338 Oct 20 11:00 Makefile
+-rwxrwxr-x 1 ahmed ahmed 68672 Nov  3 01:07 shell
+-rw-rw-rw- 1 ahmed ahmed   455 Feb  2  2004 shell.l
+-rw-rw-rw- 1 ahmed ahmed  1540 Oct 18 09:57 shell.y
+drwxrwxr-x 2 ahmed ahmed  4096 Nov  3 01:44 test
+-rw-rw-r-- 1 ahmed ahmed   751 Nov  3 01:05 testOut.txt
+-rw-rw-r-- 1 ahmed ahmed 49102 Nov  3 00:59 y.tab.c
+-rw-rw-r-- 1 ahmed ahmed  2426 Nov  3 00:59 y.tab.h
+-rw-rw-r-- 1 ahmed ahmed 25232 Nov  3 00:59 y.tab.o

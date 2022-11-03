@@ -28,6 +28,8 @@ struct Command {
 	void print();
 	void execute();
 	void clear();
+	void execute_ls();
+	void execute_ls_write();
 	
 	Command();
 	void insertSimpleCommand( SimpleCommand * simpleCommand );
