@@ -9,7 +9,6 @@
  *
  */
 
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,12 +16,6 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <fstream>
-
-using namespace std;
 
 #include "command.h"
 
@@ -64,11 +57,6 @@ Command::Command()
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;
-	flagList = 1;
-	flagRewrite = 0;
-	flagAppend = 0;
-	flagPipe = 0;
-	flagCat = 1;
 }
 
 void Command::insertSimpleCommand(SimpleCommand *simpleCommand)
@@ -117,11 +105,6 @@ void Command::clear()
 	_inputFile = 0;
 	_errFile = 0;
 	_background = 0;
-	flagList = 1;
-	flagRewrite = 0;
-	flagAppend = 0;
-	flagPipe = 0;
-	flagCat = 1;
 }
 
 void Command::print()
@@ -150,154 +133,6 @@ void Command::print()
 	printf("\n\n");
 }
 
-void Command::execute_ls()
-{
-	string files[50];
-	static int i = 0;
-	struct dirent *d;
-	DIR *dr;
-
-	if (_simpleCommands[0]->_numberOfArguments == 1)
-	{
-		dr = opendir(".");
-
-		if (dr != NULL)
-		{
-			cout << "List of Files & Folders in current directory\n\n";
-			for (d = readdir(dr); d != NULL; d = readdir(dr))
-			{
-				files[i] = d->d_name;
-				i++;
-			}
-			closedir(dr);
-		}
-		else
-			cout << "\nError Occurred!";
-
-		for (int j = 0; j < i; j++)
-		{
-			cout << files[j] << endl;
-		}
-		i = 0;
-		cout << endl;
-	}
-
-	else if (_simpleCommands[0]->_numberOfArguments > 1)
-	{
-		for (int k = 0; k < _simpleCommands[0]->_numberOfArguments - 1; k++)
-		{
-			dr = opendir(_simpleCommands[0]->_arguments[k + 1]);
-			if (dr != NULL)
-			{
-				cout << "List of Files & Folders in " << _simpleCommands[0]->_arguments[k + 1] << "\n\n";
-				for (d = readdir(dr); d != NULL; d = readdir(dr))
-				{
-					files[i] = d->d_name;
-					i++;
-				}
-				closedir(dr);
-			}
-			else
-				cout << "\nError Occurred!";
-
-			for (int j = 0; j < i; j++)
-			{
-				cout << files[j] << endl;
-			}
-			i = 0;
-			cout << endl;
-		}
-	}
-}
-
-void Command::execute_ls_write()
-{
-	string files[50];
-	static int i = 0;
-	struct dirent *d;
-	DIR *dr;
-
-	dr = opendir(_simpleCommands[0]->_arguments[1]);
-
-	if (dr != NULL)
-	{
-		for (d = readdir(dr); d != NULL; d = readdir(dr))
-		{
-			files[i] = d->d_name;
-			i++;
-		}
-		closedir(dr);
-	}
-	else
-		cout << "\nError Occurred!";
-
-	ofstream fout(_outFile);
-	for (int j = 0; j < i; j++)
-	{
-		fout << files[j] << endl;
-	}
-	fout.close();
-	i = 0;
-	cout << endl;
-}
-
-void Command::execute_ls_append()
-{
-	string files[50];
-	static int i = 0;
-	struct dirent *d;
-	DIR *dr;
-
-	dr = opendir(_simpleCommands[0]->_arguments[1]);
-
-	if (dr != NULL)
-	{
-		for (d = readdir(dr); d != NULL; d = readdir(dr))
-		{
-			files[i] = d->d_name;
-			i++;
-		}
-		closedir(dr);
-	}
-	else
-		cout << "\nError Occurred!";
-
-	ofstream fout(_outFile, ios::app);
-	for (int j = 0; j < i; j++)
-	{
-		fout << files[j] << endl;
-	}
-	fout.close();
-	i = 0;
-	cout << endl;
-}
-
-void Command::execute_cat()
-{
-	ifstream fin(_simpleCommands[0]->_arguments[1]);
-	while (!fin.eof())
-	{
-		string line;
-		getline(fin, line);
-		cout << line << endl;
-	}
-}
-
-void Command::execute_grep()
-{
-	ifstream fin(_simpleCommands[0]->_arguments[1]);
-	int i  = 0;
-	while (!fin.eof())
-	{
-		string line;
-		getline(fin, line);
-		size_t found = line.find(_pipeText);
-		if (found != string::npos){
-			cout << line << endl;
-		}
-	}
-}
-
 void Command::execute()
 {
 	// Don't do anything if there are no simple commands
@@ -314,30 +149,6 @@ void Command::execute()
 	// For every simple command fork a new process
 	// Setup i/o redirection
 	// and call exec
-
-	const char *c1 = "ls";
-	const char *c2 = "cat";
-	const char *c3 = "grep";
-
-	if (string(_simpleCommands[0]->_arguments[0]) == string(c1))
-	{
-		if (flagList == 1)
-			execute_ls();
-
-		if (flagRewrite == 1)
-			execute_ls_write();
-
-		if (flagAppend == 1)
-			execute_ls_append();
-	}
-	else if (string(_simpleCommands[0]->_arguments[0]) == string(c2) && flagCat == 1)
-	{
-		execute_cat();
-	}
-	else if (flagPipe == 1)
-	{
-		execute_grep();
-	}
 
 	// Clear to prepare for next command
 	clear();
@@ -361,7 +172,6 @@ int yyparse(void);
 
 int main()
 {
-	cout << "hello" << endl;
 	Command::_currentCommand.prompt();
 	yyparse();
 	return 0;
