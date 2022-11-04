@@ -15,6 +15,7 @@ public:
     char *execArguments[SIZE];
     vector<string> arguments;
 
+    int file_desc;
     string outputFile;
     string inputFile;
     string errorFile;

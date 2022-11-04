@@ -2,14 +2,13 @@
 #include <iostream>
 #include <sstream>
 #include <boost/algorithm/string.hpp>
-#include <cstring>
-#include <dirent.h>
-#include <fstream>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 using namespace boost::algorithm;
 
@@ -43,6 +42,7 @@ void tokenize(Command &currentCommand)
         tokens.push_back(row);
     }
 
+    // arguments
     for (int i = 0; i < tokens.size(); i++)
     {
         currentCommand.simpleCommand.command = tokens[i][0];
@@ -54,12 +54,40 @@ void tokenize(Command &currentCommand)
         currentCommand.simpleCommand.arguments.clear();
     }
 
+    // execArguments
     for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
     {
         currentCommand.simpleCommands[i].execArguments[0] = &currentCommand.simpleCommands[i].command[0];
 
+        int size = currentCommand.simpleCommands[i].arguments.size();
+        bool redirectionFlag = false;
+        if (size >= 3)
+        {
+            if (currentCommand.simpleCommands[i].arguments[size - 2] == ">")
+            {
+                currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[size - 1];
+                currentCommand.simpleCommands[i].file_desc = open(currentCommand.simpleCommands[i].outputFile.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+                dup2(currentCommand.simpleCommands[i].file_desc, 1);
+                redirectionFlag = true;
+                close(currentCommand.simpleCommands[i].file_desc);
+            }
+            if (currentCommand.simpleCommands[i].arguments[size - 2] == ">>")
+            {
+                currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[size - 1];
+                currentCommand.simpleCommands[i].file_desc = open(currentCommand.simpleCommands[i].outputFile.c_str(), O_RDWR | O_CREAT | O_APPEND);
+                dup2(currentCommand.simpleCommands[i].file_desc, 1);
+                redirectionFlag = true;
+                close(currentCommand.simpleCommands[i].file_desc);
+            }
+        }
+
         int k = -1;
-        for (int j = 0; j < currentCommand.simpleCommands[i].arguments.size(); j++)
+        int lastArgument = currentCommand.simpleCommands[i].arguments.size();
+        if (redirectionFlag)
+        {
+            lastArgument -= 2;
+        }
+        for (int j = 0; j < lastArgument; j++)
         {
             if (currentCommand.simpleCommands[i].arguments[j] != "&")
             {
@@ -125,6 +153,7 @@ void forkProcces(SimpleCommand currentSimpleCommand)
     else if (pid == 0)
     {
         cout << "New child process using execlp" << endl;
+        // redirection before execute the command
         execvp(currentSimpleCommand.execArguments[0], currentSimpleCommand.execArguments);
         cout << "execlp() call failed" << endl;
         exit(127);
@@ -133,7 +162,7 @@ void forkProcces(SimpleCommand currentSimpleCommand)
     {
         if (currentSimpleCommand.background)
             wait(0);
-
+        close(currentSimpleCommand.file_desc);
         cout << endl;
         cout << "Parent process: Child process ended" << endl;
         cout << endl;

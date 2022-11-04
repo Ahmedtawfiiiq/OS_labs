@@ -1,1 +1,41 @@
-output to a file
+
+
+                         COMMAND TABLE                
+
+  #   Simple Commands
+  --- ----------------------------------------------------------
+  0   ls -l /home/ahmed/Documents/ > /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
+  --------------------------------------------------------------
+  Output: /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
+  Input : default
+  Error : default
+
+
+Parent process: Child process ended
+
+myshell> New child process using execlp
+total 10224
+-rw-rw-r-- 1 ahmed ahmed 10460826 Mar 28  2022 Engineering Optimization: Theory and Practice.pdf
+drwxrwxr-x 3 ahmed ahmed     4096 Nov  3 00:56 os-labs
+-rw-rw-r-- 1 ahmed ahmed     2577 Dec 21  2021 PID controller *
+
+
+
+                         COMMAND TABLE                
+
+  #   Simple Commands
+  --- ----------------------------------------------------------
+  0   ls -l /home/ahmed/Documents/ >> /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
+  --------------------------------------------------------------
+  Output: /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
+  Input : default
+  Error : default
+
+
+Parent process: Child process ended
+
+myshell> New child process using execlp
+total 10224
+-rw-rw-r-- 1 ahmed ahmed 10460826 Mar 28  2022 Engineering Optimization: Theory and Practice.pdf
+drwxrwxr-x 3 ahmed ahmed     4096 Nov  3 00:56 os-labs
+-rw-rw-r-- 1 ahmed ahmed     2577 Dec 21  2021 PID controller *
