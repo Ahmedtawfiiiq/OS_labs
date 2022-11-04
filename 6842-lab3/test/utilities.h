@@ -1,9 +1,10 @@
 #ifndef command_h
 #define command_h
 
-#include <iostream>
 #include <vector>
 #include <string>
+
+#define SIZE 10
 
 using namespace std;
 
@@ -11,17 +12,15 @@ class SimpleCommand
 {
 public:
     string command;
+    char *execArguments[SIZE];
     vector<string> arguments;
 
     string outputFile;
     string inputFile;
     string errorFile;
+    bool background;
 
-    vector<string> output;
-    vector<string> input;
-    vector<string> error;
-
-    SimpleCommand() : outputFile(""), inputFile(""), errorFile("") {}
+    SimpleCommand() : outputFile(""), inputFile(""), errorFile(""), background(false) {}
 };
 
 class Command
@@ -36,18 +35,6 @@ public:
 
 void tokenize(Command &);
 
-vector<string> readFile(string);
-
-vector<string> listDirectory(string);
-
-void fileRewrite(string, string);
-
-void fileAppend(string, string);
-
-bool singleAngle(Command, int);
-
-bool doubleAngle(Command, int);
-
-void printContent(Command &, int);
+void forkProcces(SimpleCommand);
 
 #endif

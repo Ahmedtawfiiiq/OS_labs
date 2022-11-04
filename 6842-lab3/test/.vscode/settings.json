@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.txt": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "bitset": "cpp",
+        "ostream": "cpp"
     }
 }

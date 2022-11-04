@@ -5,6 +5,11 @@
 #include <cstring>
 #include <dirent.h>
 #include <fstream>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 using namespace boost::algorithm;
 
@@ -48,161 +53,25 @@ void tokenize(Command &currentCommand)
         currentCommand.simpleCommands.push_back(currentCommand.simpleCommand);
         currentCommand.simpleCommand.arguments.clear();
     }
-}
 
-vector<string> readFile(string path)
-{
-    vector<string> fileContent;
-    ifstream fin(path);
-    while (!fin.eof())
+    for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
     {
-        string line;
-        getline(fin, line);
-        fileContent.push_back(line);
-    }
-    return fileContent;
-}
+        currentCommand.simpleCommands[i].execArguments[0] = &currentCommand.simpleCommands[i].command[0];
 
-vector<string> listDirectory(string path)
-{
-    vector<string> directoryDescription;
-    string s = "";
-
-    struct dirent *d;
-    DIR *dr;
-    dr = opendir(path.c_str());
-    if (dr != NULL)
-    {
-        s = "List of files and folders in \"" + path + "\"";
-        directoryDescription.push_back(s);
-
-        for (d = readdir(dr); d != NULL; d = readdir(dr))
+        int k = -1;
+        for (int j = 0; j < currentCommand.simpleCommands[i].arguments.size(); j++)
         {
-            s = d->d_name;
-            directoryDescription.push_back(s);
-        }
-        closedir(dr);
-    }
-    else
-    {
-        s = "\nError Occurred!";
-        directoryDescription.push_back(s);
-    }
-    s = "\n";
-    directoryDescription.push_back(s);
-    return directoryDescription;
-}
-
-void printContent(Command &currentCommand, int position)
-{
-    vector<string> description;
-    for (int i = 0; i < currentCommand.simpleCommands[position].arguments.size(); i++)
-    {
-        if (currentCommand.simpleCommands[position].command == "ls")
-        {
-            description = listDirectory(currentCommand.simpleCommands[position].arguments[i]);
-            currentCommand.simpleCommands[position].output = description;
-            for (int j = 0; j < description.size(); j++)
+            if (currentCommand.simpleCommands[i].arguments[j] != "&")
             {
-                cout << description[j] << endl;
+                currentCommand.simpleCommands[i].execArguments[j + 1] = &currentCommand.simpleCommands[i].arguments[j][0];
+                k++;
             }
-            cout << "  --------------------------------------------------------------" << endl;
+            else
+                currentCommand.simpleCommands[i].background = true; // set background flag
         }
-        if (currentCommand.simpleCommands[position].command == "cat")
-        {
-            description = readFile(currentCommand.simpleCommands[position].arguments[i]);
-            currentCommand.simpleCommands[position].output = description;
-            for (int j = 0; j < description.size(); j++)
-            {
-                cout << description[j] << endl;
-            }
-            cout << "  --------------------------------------------------------------" << endl;
-        }
-        if (currentCommand.simpleCommands[position].command == "grep")
-        {
-            vector<string> fileDescription;
-            string s = currentCommand.simpleCommands[position].arguments[i];
-            description = currentCommand.simpleCommands[position - 1].output;
-            size_t found;
-            for (int j = 0; j < description.size(); j++)
-            {
-                found = description[j].find(s);
-                if (found != string::npos)
-                {
-                    fileDescription.push_back(description[j]);
-                    cout << description[j] << endl;
-                }
-            }
-            currentCommand.simpleCommands[position].output = fileDescription;
-            cout << "  --------------------------------------------------------------" << endl;
-        }
+
+        currentCommand.simpleCommands[i].execArguments[k + 2] = NULL;
     }
-}
-
-void fileRewrite(string sourcePath, string targetPath)
-{
-    vector<string> description;
-    description = listDirectory(sourcePath);
-
-    ofstream fout(targetPath);
-
-    for (int i = 0; i < description.size(); i++)
-    {
-        fout << description[i] << endl;
-    }
-    fout.close();
-}
-
-void fileAppend(string sourcePath, string targetPath)
-{
-    vector<string> description;
-    description = listDirectory(sourcePath);
-
-    ofstream fout(targetPath, ios::app);
-
-    for (int i = 0; i < description.size(); i++)
-    {
-        fout << description[i] << endl;
-    }
-    fout.close();
-}
-
-bool singleAngle(Command currentCommand, int position)
-{
-    for (int j = 0; j < currentCommand.simpleCommands[position].arguments.size(); j++)
-    {
-        if (currentCommand.simpleCommands[position].arguments[j] == ">") // append
-        {
-            if (currentCommand.simpleCommands[position].command == "ls")
-            {
-                for (int k = 0; k < j; k++)
-                {
-                    fileRewrite(currentCommand.simpleCommands[position].arguments[k], currentCommand.simpleCommands[position].arguments[j + 1]);
-                }
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-bool doubleAngle(Command currentCommand, int position)
-{
-    for (int j = 0; j < currentCommand.simpleCommands[position].arguments.size(); j++)
-    {
-        if (currentCommand.simpleCommands[position].arguments[j] == ">>") // append
-        {
-            if (currentCommand.simpleCommands[position].command == "ls")
-            {
-                for (int k = 0; k < j; k++)
-                {
-                    fileAppend(currentCommand.simpleCommands[position].arguments[k], currentCommand.simpleCommands[position].arguments[j + 1]);
-                }
-            }
-            return true;
-        }
-    }
-    return false;
 }
 
 void Command::print()
@@ -226,18 +95,47 @@ void Command::print()
         if (simpleCommands[i].outputFile != "")
             cout << "  Output: " << simpleCommands[i].outputFile;
         else
-            cout << "  Output: default";
+            cout << "  Output: default"; // default output file descriptor
         cout << endl;
         if (simpleCommands[i].inputFile != "")
             cout << "  Input : " << simpleCommands[i].inputFile;
         else
-            cout << "  Input : default";
+            cout << "  Input : default"; // default input file descriptor
         cout << endl;
         if (simpleCommands[i].errorFile != "")
             cout << "  Error : " << simpleCommands[i].errorFile;
         else
-            cout << "  Error : default";
+            cout << "  Error : default"; // default error file descriptor
         cout << endl;
     }
     cout << endl;
+}
+
+void forkProcces(SimpleCommand currentSimpleCommand)
+{
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        cout << "A fork error has occurred" << endl;
+        exit(-1); // fork failed
+    }
+    else if (pid == 0)
+    {
+        cout << "New child process using execlp" << endl;
+        execvp(currentSimpleCommand.execArguments[0], currentSimpleCommand.execArguments);
+        cout << "execlp() call failed" << endl;
+        exit(127);
+    }
+    else
+    {
+        if (currentSimpleCommand.background)
+            wait(0);
+
+        cout << endl;
+        cout << "Parent process: Child process ended" << endl;
+        cout << endl;
+    }
 }

@@ -3,17 +3,11 @@
 
 using namespace std;
 
-void prompt()
-{
-    cout << "myshell> ";
-}
-
 int main()
 {
-
     while (true)
     {
-        prompt();
+        cout << "myshell> ";
 
         Command currentCommand;
 
@@ -24,12 +18,7 @@ int main()
         bool lsFlag = false;
         for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
         {
-            if (!lsFlag)
-                lsFlag = doubleAngle(currentCommand, i);
-            if (!lsFlag)
-                lsFlag = singleAngle(currentCommand, i);
-            if (!lsFlag)
-                printContent(currentCommand, i);
+            forkProcces(currentCommand.simpleCommands[i]);
         }
     }
     return 0;

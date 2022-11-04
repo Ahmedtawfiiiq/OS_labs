@@ -1,85 +1,82 @@
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <boost/algorithm/string.hpp>
-using namespace boost::algorithm;
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string>
 
 using namespace std;
 
-// class Employee
-// {
-//     int id;
-//     string name;
-
-// public:
-//     void getdata();
-//     void putdata();
-// };
-
-// void Employee::getdata()
-// {
-//     cout << "Enter Id : ";
-//     cin >> id;
-//     cout << "Enter Name : ";
-//     cin >> name;
-// }
-
-// void Employee::putdata()
-// {
-//     cout << id << " ";
-//     cout << name << " ";
-//     cout << endl;
-// }
-
 int main()
 {
-    // string line = "GeeksForGeeks is a must try";
-    string line = "";
-    getline(cin, line);
+    int defaultout = dup(1);
 
-    // Vector of string to save tokens
-    vector<string> tokens;
+    int file_desc = creat("f3.txt", 0666);
 
-    // stringstream class check1
-    stringstream check1(line);
-
-    string intermediate;
-
-    // Tokenizing w.r.t. space ' '
-    while (getline(check1, intermediate, '|'))
+    if (file_desc < 0)
     {
-        trim(intermediate);
-        tokens.push_back(intermediate);
+        perror("ls : create outfile");
+        exit(2);
     }
 
-    // Printing the token vector
-    for (int i = 0; i < tokens.size(); i++)
-    {
-        cout << tokens[i] << '\n';
-    }
+    string s1 = "output to a file\n";
+    write(file_desc, s1.c_str(), s1.size());
+
+    dup2(file_desc, 1);
+    close(file_desc);
+
+    string s2 = "output to terminal\n";
+    write(defaultout, s2.c_str(), s2.size());
+
+    return 0;
 }
 
-// string s = "ahmed";
-// printf("\"%s\" \t", s);
-// vector<Employee> employees;
-// int n, i;
+// #include <unistd.h>
 
-// employees.clear();
-// while (true)
+// int main(void)
 // {
-//     cout << "Enter Number of Employees - " << endl;
-//     cin >> n;
-//     for (int k = 0; k < n; k++)
-//     {
-//         Employee emp;
-//         employees.push_back(emp);
-//     }
+//   char *execArgs[] = { "echo", "Hello, World!", NULL };
+//   execvp("echo", execArgs);
 
-//     for (i = 0; i < n; i++)
-//         employees[i].getdata();
+//   return 0;
+// }
 
-//     cout << "Employee Data - " << endl;
+// char *execArgs[10];
 
-//     for (i = 0; i < n; i++)
-//         employees[i].putdata();
+// vector<string> test;
+
+// test.push_back("ls");
+// test.push_back("-a");
+// test.push_back("-l");
+
+// execArgs[0] = &test[0][0];
+// execArgs[1] = &test[1][0];
+// execArgs[2] = &test[2][0];
+// execArgs[3] = NULL;
+
+// pid_t pid;
+
+// pid = fork();
+
+// if (pid < 0)
+// {
+//     printf("A fork error has occurred.\n");
+//     exit(-1);
+// }
+// else if (pid == 0) /* We are in the child. */
+// {
+
+//     printf("I am the child, about to call ps using execlp.\n");
+//     execvp(execArgs[0], execArgs);
+//     /*  If execlp() is successful, we should not reach this next line. */
+//     printf("The call to execlp() was not successful.\n");
+//     exit(127);
+// }
+// else /* We are in the parent. */
+// {
+//     wait(0); /* Wait for the child to terminate. */
+//     printf("\nI am the parent.  The child just ended.  I will now exit.\n");
+//     exit(0);
 // }
