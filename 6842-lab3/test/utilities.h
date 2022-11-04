@@ -30,6 +30,18 @@ public:
 
 void tokenize(Command &);
 
-void listDirectory(string);
+vector<string> readFile(string);
+
+vector<string> listDirectory(string);
+
+void fileRewrite(string, string);
+
+void fileAppend(string, string);
+
+bool singleAngle(SimpleCommand);
+
+bool doubleAngle(SimpleCommand);
+
+void printContent(SimpleCommand);
 
 #endif
