@@ -25,11 +25,11 @@ int main()
         for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
         {
             if (!lsFlag)
-                lsFlag = doubleAngle(currentCommand.simpleCommands[i]);
+                lsFlag = doubleAngle(currentCommand, i);
             if (!lsFlag)
-                lsFlag = singleAngle(currentCommand.simpleCommands[i]);
+                lsFlag = singleAngle(currentCommand, i);
             if (!lsFlag)
-                printContent(currentCommand.simpleCommands[i]);
+                printContent(currentCommand, i);
         }
     }
     return 0;

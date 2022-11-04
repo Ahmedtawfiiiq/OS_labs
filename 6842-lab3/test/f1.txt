@@ -1,1 +1,27 @@
-i love playing football
+List of files and folders in "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test"
+.
+f1.txt
+Makefile
+command.h
+shell.y
+command.o
+a.out
+y.tab.h
+lex.yy.c
+lex-tutorial
+y.tab.c
+main.cc
+y.tab.o
+command
+test.cc
+test
+utilities.h
+..
+yacc-tutorial
+.vscode
+shell.l
+utilities.cc
+lex.yy.o
+f2.txt
+
+

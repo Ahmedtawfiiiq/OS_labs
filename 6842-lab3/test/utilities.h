@@ -12,9 +12,15 @@ class SimpleCommand
 public:
     string command;
     vector<string> arguments;
+
     string outputFile;
     string inputFile;
     string errorFile;
+
+    vector<string> output;
+    vector<string> input;
+    vector<string> error;
+
     SimpleCommand() : outputFile(""), inputFile(""), errorFile("") {}
 };
 
@@ -38,10 +44,10 @@ void fileRewrite(string, string);
 
 void fileAppend(string, string);
 
-bool singleAngle(SimpleCommand);
+bool singleAngle(Command, int);
 
-bool doubleAngle(SimpleCommand);
+bool doubleAngle(Command, int);
 
-void printContent(SimpleCommand);
+void printContent(Command &, int);
 
 #endif

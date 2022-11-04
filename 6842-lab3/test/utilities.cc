@@ -93,27 +93,48 @@ vector<string> listDirectory(string path)
     return directoryDescription;
 }
 
-void printContent(SimpleCommand currentSimpleCommand)
+void printContent(Command &currentCommand, int position)
 {
-    for (int i = 0; i < currentSimpleCommand.arguments.size(); i++)
+    vector<string> description;
+    for (int i = 0; i < currentCommand.simpleCommands[position].arguments.size(); i++)
     {
-        if (currentSimpleCommand.command == "ls")
+        if (currentCommand.simpleCommands[position].command == "ls")
         {
-            vector<string> description;
-            description = listDirectory(currentSimpleCommand.arguments[i]);
+            description = listDirectory(currentCommand.simpleCommands[position].arguments[i]);
+            currentCommand.simpleCommands[position].output = description;
             for (int j = 0; j < description.size(); j++)
             {
                 cout << description[j] << endl;
             }
+            cout << "  --------------------------------------------------------------" << endl;
         }
-        if (currentSimpleCommand.command == "cat")
+        if (currentCommand.simpleCommands[position].command == "cat")
         {
-            vector<string> description;
-            description = readFile(currentSimpleCommand.arguments[i]);
+            description = readFile(currentCommand.simpleCommands[position].arguments[i]);
+            currentCommand.simpleCommands[position].output = description;
             for (int j = 0; j < description.size(); j++)
             {
                 cout << description[j] << endl;
             }
+            cout << "  --------------------------------------------------------------" << endl;
+        }
+        if (currentCommand.simpleCommands[position].command == "grep")
+        {
+            vector<string> fileDescription;
+            string s = currentCommand.simpleCommands[position].arguments[i];
+            description = currentCommand.simpleCommands[position - 1].output;
+            size_t found;
+            for (int j = 0; j < description.size(); j++)
+            {
+                found = description[j].find(s);
+                if (found != string::npos)
+                {
+                    fileDescription.push_back(description[j]);
+                    cout << description[j] << endl;
+                }
+            }
+            currentCommand.simpleCommands[position].output = fileDescription;
+            cout << "  --------------------------------------------------------------" << endl;
         }
     }
 }
@@ -146,17 +167,17 @@ void fileAppend(string sourcePath, string targetPath)
     fout.close();
 }
 
-bool singleAngle(SimpleCommand currentSimpleCommand)
+bool singleAngle(Command currentCommand, int position)
 {
-    for (int j = 0; j < currentSimpleCommand.arguments.size(); j++)
+    for (int j = 0; j < currentCommand.simpleCommands[position].arguments.size(); j++)
     {
-        if (currentSimpleCommand.arguments[j] == ">") // append
+        if (currentCommand.simpleCommands[position].arguments[j] == ">") // append
         {
-            if (currentSimpleCommand.command == "ls")
+            if (currentCommand.simpleCommands[position].command == "ls")
             {
                 for (int k = 0; k < j; k++)
                 {
-                    fileRewrite(currentSimpleCommand.arguments[k], currentSimpleCommand.arguments[j + 1]);
+                    fileRewrite(currentCommand.simpleCommands[position].arguments[k], currentCommand.simpleCommands[position].arguments[j + 1]);
                 }
             }
             return true;
@@ -165,17 +186,17 @@ bool singleAngle(SimpleCommand currentSimpleCommand)
     return false;
 }
 
-bool doubleAngle(SimpleCommand currentSimpleCommand)
+bool doubleAngle(Command currentCommand, int position)
 {
-    for (int j = 0; j < currentSimpleCommand.arguments.size(); j++)
+    for (int j = 0; j < currentCommand.simpleCommands[position].arguments.size(); j++)
     {
-        if (currentSimpleCommand.arguments[j] == ">>") // append
+        if (currentCommand.simpleCommands[position].arguments[j] == ">>") // append
         {
-            if (currentSimpleCommand.command == "ls")
+            if (currentCommand.simpleCommands[position].command == "ls")
             {
                 for (int k = 0; k < j; k++)
                 {
-                    fileAppend(currentSimpleCommand.arguments[k], currentSimpleCommand.arguments[j + 1]);
+                    fileAppend(currentCommand.simpleCommands[position].arguments[k], currentCommand.simpleCommands[position].arguments[j + 1]);
                 }
             }
             return true;
