@@ -152,6 +152,8 @@ void classifyCommand(Command &currentCommand)
 
 void modifyCommand(Command &currentCommand)
 {
+    int defaultout = dup(1);
+
     for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
     {
         if (currentCommand.simpleCommands[i].background && currentCommand.simpleCommands[i].simpleCommandType == "rewrite")
@@ -163,7 +165,6 @@ void modifyCommand(Command &currentCommand)
                 currentCommand.simpleCommands[i].inputFile.insert(currentCommand.simpleCommands[i].inputFile.begin(), currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 4 - j]);
             }
             currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 2];
-            currentCommand.print();
             modifyFileDescriptorRewrite(currentCommand, i, 2);
             execArguments(currentCommand.simpleCommands[i], 3);
             continue;
@@ -177,7 +178,6 @@ void modifyCommand(Command &currentCommand)
                 currentCommand.simpleCommands[i].inputFile.insert(currentCommand.simpleCommands[i].inputFile.begin(), currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 3 - j]);
             }
             currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 1];
-            currentCommand.print();
             modifyFileDescriptorRewrite(currentCommand, i, 1);
             execArguments(currentCommand.simpleCommands[i], 2);
             continue;
@@ -192,7 +192,6 @@ void modifyCommand(Command &currentCommand)
                 currentCommand.simpleCommands[i].inputFile.insert(currentCommand.simpleCommands[i].inputFile.begin(), currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 4 - j]);
             }
             currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 2];
-            currentCommand.print();
             modifyFileDescriptorAppend(currentCommand, i, 2);
             execArguments(currentCommand.simpleCommands[i], 3);
             continue;
@@ -206,7 +205,6 @@ void modifyCommand(Command &currentCommand)
                 currentCommand.simpleCommands[i].inputFile.insert(currentCommand.simpleCommands[i].inputFile.begin(), currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 3 - j]);
             }
             currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 1];
-            currentCommand.print();
             modifyFileDescriptorAppend(currentCommand, i, 1);
             execArguments(currentCommand.simpleCommands[i], 2);
             continue;
@@ -220,7 +218,6 @@ void modifyCommand(Command &currentCommand)
                     continue;
                 currentCommand.simpleCommands[i].inputFile.insert(currentCommand.simpleCommands[i].inputFile.begin(), currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 2 - j]);
             }
-            currentCommand.print();
             execArguments(currentCommand.simpleCommands[i], 1);
 
             continue;
@@ -233,12 +230,16 @@ void modifyCommand(Command &currentCommand)
                     continue;
                 currentCommand.simpleCommands[i].inputFile.insert(currentCommand.simpleCommands[i].inputFile.begin(), currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 1 - j]);
             }
-            currentCommand.print();
             execArguments(currentCommand.simpleCommands[i], 0);
 
             continue;
         }
     }
+    int currentDescriptor = dup(1);
+    dup2(defaultout, 1);
+    close(defaultout);
+    currentCommand.print();
+    dup2(currentDescriptor, 1);
 }
 
 void modifyFileDescriptorRewrite(Command &currentCommand, int index, int position)

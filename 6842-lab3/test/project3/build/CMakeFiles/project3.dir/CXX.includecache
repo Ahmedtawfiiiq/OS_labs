@@ -6,28 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/main.cc
-utilities.h
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
-iostream
--
-stdio.h
--
-stdlib.h
--
-unistd.h
--
-wait.h
--
-sys/types.h
--
-sys/stat.h
--
-fcntl.h
--
-signal.h
--
-
 /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.cc
 utilities.h
 /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
