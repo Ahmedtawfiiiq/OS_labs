@@ -1,4 +1,3 @@
-#include "utilities.h"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +7,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+
+#include "utilities.h"
+#include "system.h"
 
 using namespace std;
 
@@ -43,24 +45,10 @@ void proc_exit(int sig)
     dup2(currentDescriptor, 1);
 }
 
-void handle_sigpipe(int sig)
-{
-    int currentDescriptor = dup(1);
-    int log = open("log.txt", O_RDWR | O_CREAT | O_APPEND);
-    dup2(log, 1);
-    cout << endl;
-    cout << "  --------------------------------------------------------------" << endl;
-    cout << "  Pipe is terminated" << endl;
-    cout << "  --------------------------------------------------------------" << endl;
-    cout << endl;
-    dup2(currentDescriptor, 1);
-}
-
 int main()
 {
     signal(SIGINT, handle_sigint);
     signal(SIGCHLD, proc_exit);
-    signal(SIGTERM, handle_sigpipe);
 
     int defaultout = dup(1);
 
@@ -79,7 +67,6 @@ int main()
         currentCommand.defaultlog = "log.txt";
 
         tokenize(currentCommand);
-
         classifyCommand(currentCommand);
         modifyCommand(currentCommand);
 

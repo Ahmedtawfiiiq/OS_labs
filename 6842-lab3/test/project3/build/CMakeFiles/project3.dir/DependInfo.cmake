@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/main.cc" "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles/project3.dir/main.cc.o"
+  "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.cc" "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles/project3.dir/system.cc.o"
   "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.cc" "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles/project3.dir/utilities.cc.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

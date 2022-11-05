@@ -196,6 +196,33 @@ main.cc.s:
 	$(MAKE) -f CMakeFiles/project3.dir/build.make CMakeFiles/project3.dir/main.cc.s
 .PHONY : main.cc.s
 
+system.o: system.cc.o
+
+.PHONY : system.o
+
+# target to build an object file
+system.cc.o:
+	$(MAKE) -f CMakeFiles/project3.dir/build.make CMakeFiles/project3.dir/system.cc.o
+.PHONY : system.cc.o
+
+system.i: system.cc.i
+
+.PHONY : system.i
+
+# target to preprocess a source file
+system.cc.i:
+	$(MAKE) -f CMakeFiles/project3.dir/build.make CMakeFiles/project3.dir/system.cc.i
+.PHONY : system.cc.i
+
+system.s: system.cc.s
+
+.PHONY : system.s
+
+# target to generate assembly for a file
+system.cc.s:
+	$(MAKE) -f CMakeFiles/project3.dir/build.make CMakeFiles/project3.dir/system.cc.s
+.PHONY : system.cc.s
+
 utilities.o: utilities.cc.o
 
 .PHONY : utilities.o
@@ -239,6 +266,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... system.o"
+	@echo "... system.i"
+	@echo "... system.s"
 	@echo "... utilities.o"
 	@echo "... utilities.i"
 	@echo "... utilities.s"

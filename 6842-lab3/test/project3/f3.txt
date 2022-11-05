@@ -1,1 +1,2 @@
--rw-rw-r-- 1 ahmed ahmed     0 Nov  5 22:09 f3.txt
+drwxrwxr-x 4 ahmed ahmed  4096 Nov  6 00:00 build
+drwxrwxr-x 3 ahmed ahmed  4096 Nov  5 18:35 build-dir

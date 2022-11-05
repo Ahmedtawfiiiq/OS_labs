@@ -47,18 +47,6 @@ void classifyCommand(Command &);
 
 void modifyCommand(Command &);
 
-void modifyFileDescriptorRewrite(Command &, int, int);
-
-void modifyFileDescriptorAppend(Command &, int, int);
-
 void execArguments(Command &, int, int cutPosition);
-
-void forkProcces(Command &);
-
-void forkProcessPipe(Command &);
-
-void changeDirectory(Command);
-
-void forkProcessDoublePipe(Command &);
 
 #endif

@@ -74,12 +74,12 @@ clean: CMakeFiles/project3.dir/clean
 CMakeFiles/project3.dir/all:
 	$(MAKE) -f CMakeFiles/project3.dir/build.make CMakeFiles/project3.dir/depend
 	$(MAKE) -f CMakeFiles/project3.dir/build.make CMakeFiles/project3.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles --progress-num=1,2,3 "Built target project3"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles --progress-num=1,2,3,4 "Built target project3"
 .PHONY : CMakeFiles/project3.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/project3.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/project3.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build/CMakeFiles 0
 .PHONY : CMakeFiles/project3.dir/rule

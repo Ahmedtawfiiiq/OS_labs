@@ -1,5 +1,15 @@
-CMakeLists.txt
-f1.txt Villanova
-f2.txt Villanova
-f3.txt Villanova.cc
-log.txt
+total 92
+-rwxrwxr-x 1 ahmed ahmed 16960 Nov  5 23:19 a.out
+drwxrwxr-x 4 ahmed ahmed  4096 Nov  6 00:00 build
+drwxrwxr-x 3 ahmed ahmed  4096 Nov  5 18:35 build-dir
+-rw-rw-r-- 1 ahmed ahmed   327 Nov  5 23:44 CMakeLists.txt
+-rw-rw-r-- 1 ahmed ahmed     0 Nov  6 00:02 f1.txt
+-rw-rw-r-- 1 ahmed ahmed   264 Nov  6 00:02 f2.txt
+-rw-rw-r-- 1 ahmed ahmed    51 Nov  5 22:09 f3.txt
+-rw-rw-r-- 1 ahmed ahmed 10872 Nov  6 00:02 log.txt
+-rw-rw-r-- 1 ahmed ahmed  2299 Nov  5 23:52 main.cc
+-rw-rw-r-- 1 ahmed ahmed  8884 Nov  5 23:59 system.cc
+-rw-rw-r-- 1 ahmed ahmed   249 Nov  5 23:32 system.h
+-rw-rw-r-- 1 ahmed ahmed  1853 Nov  5 23:19 test.cc
+-rw-rw-r-- 1 ahmed ahmed  9845 Nov  6 00:00 utilities.cc
+-rw-rw-r-- 1 ahmed ahmed   840 Nov  5 23:25 utilities.h

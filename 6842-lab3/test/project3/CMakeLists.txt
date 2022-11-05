@@ -5,7 +5,7 @@ project(project3 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(project3 main.cc utilities.cc)
+add_executable(project3 main.cc system.cc utilities.cc)
 
 set_target_properties(project3 PROPERTIES OUTPUT_NAME "lab3")
 
