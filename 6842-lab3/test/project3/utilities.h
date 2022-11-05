@@ -59,4 +59,6 @@ void forkProcessPipe(Command &);
 
 void changeDirectory(Command);
 
+void forkProcessDoublePipe(Command &);
+
 #endif

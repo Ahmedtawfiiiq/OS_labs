@@ -1,5 +1,1 @@
-CMakeLists.txt
-f1.txt
-f2.txt
-f3.txt
-log.txt
+-rw-rw-r-- 1 ahmed ahmed    77 Nov  5 21:22 f1.txt

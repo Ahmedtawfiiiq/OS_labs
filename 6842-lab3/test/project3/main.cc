@@ -19,29 +19,41 @@ void prompt()
 
 void handle_sigint(int sig)
 {
+    int currentDescriptor = dup(1);
+    int log = open("log.txt", O_RDWR | O_CREAT | O_APPEND);
+    dup2(log, 1);
     cout << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << "ctrl-c signal is ignored" << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << endl;
+    dup2(currentDescriptor, 1);
 }
 
 void proc_exit(int sig)
 {
+    int currentDescriptor = dup(1);
+    int log = open("log.txt", O_RDWR | O_CREAT | O_APPEND);
+    dup2(log, 1);
     cout << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << "  A Child is terminated" << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << endl;
+    dup2(currentDescriptor, 1);
 }
 
 void handle_sigpipe(int sig)
 {
+    int currentDescriptor = dup(1);
+    int log = open("log.txt", O_RDWR | O_CREAT | O_APPEND);
+    dup2(log, 1);
     cout << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << "  Pipe is terminated" << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << endl;
+    dup2(currentDescriptor, 1);
 }
 
 int main()
@@ -82,6 +94,11 @@ int main()
         if (currentCommand.commandType == "pipe")
         {
             forkProcessPipe(currentCommand);
+        }
+
+        if (currentCommand.commandType == "doublePipe")
+        {
+            forkProcessDoublePipe(currentCommand);
         }
     }
     return 0;

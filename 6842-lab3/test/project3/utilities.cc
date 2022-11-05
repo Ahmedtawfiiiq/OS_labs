@@ -126,13 +126,15 @@ void Command::print()
 
 void classifyCommand(Command &currentCommand)
 {
+    if (currentCommand.simpleCommands.size() == 1)
+        currentCommand.commandType = "single";
+    else if (currentCommand.simpleCommands.size() == 2)
+        currentCommand.commandType = "pipe";
+    else if (currentCommand.simpleCommands.size() == 3)
+        currentCommand.commandType = "doublePipe";
+
     for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
     {
-        if (currentCommand.simpleCommands.size() == 1)
-            currentCommand.commandType = "single";
-        else
-            currentCommand.commandType = "pipe";
-
         int sizeOfArguments = currentCommand.simpleCommands[i].arguments.size();
 
         if (currentCommand.simpleCommands[i].arguments[sizeOfArguments - 1] == "&")
@@ -363,4 +365,114 @@ void changeDirectory(Command currentCommand)
     cout << "New working directory: " << getcwd((char *)str.c_str(), 100) << endl;
     cout << "  --------------------------------------------------------------" << endl;
     cout << endl;
+}
+
+void forkProcessDoublePipe(Command &currentCommand)
+{
+    int status;
+    int i;
+
+    int currentDescriptor = dup(1);
+    int log = open(currentCommand.defaultlog.c_str(), O_RDWR | O_CREAT | O_APPEND);
+
+    // 2 pipes each has 2 fds
+
+    int pipes[4];
+    pipe(pipes);     // sets up 1st pipe
+    pipe(pipes + 2); // sets up 2nd pipe
+
+    // pipes[0] = read  end of command 2
+    // pipes[1] = write end of command 1
+    // pipes[2] = read  end of command 3
+    // pipes[3] = write end of command 2
+
+    // fork the first child to execute first command
+
+    if (fork() == 0)
+    {
+        dup2(log, 1);
+        cout << "  --------------------------------------------------------------" << endl;
+        cout << "  New child process 1 using double pipe" << endl;
+        cout << "  --------------------------------------------------------------" << endl;
+        dup2(currentDescriptor, 1);
+
+        // replace first command stdout with write part of pipe 1
+
+        dup2(pipes[1], 1);
+
+        // close all pipes
+
+        close(pipes[0]);
+        close(pipes[1]);
+        close(pipes[2]);
+        close(pipes[3]);
+
+        execvp(currentCommand.simpleCommands[0].execArguments[0], currentCommand.simpleCommands[0].execArguments);
+    }
+    else
+    {
+        // fork second child to execute second command
+
+        if (fork() == 0)
+        {
+            dup2(log, 1);
+            cout << "  --------------------------------------------------------------" << endl;
+            cout << "  New child process 2 using double pipe" << endl;
+            cout << "  --------------------------------------------------------------" << endl;
+            dup2(currentDescriptor, 1);
+
+            // replace second command stdin with read end of pipe 1
+
+            dup2(pipes[0], 0);
+
+            // replace second command stdout with write end of pipe 2
+
+            dup2(pipes[3], 1);
+
+            // close all ends of pipes
+
+            close(pipes[0]);
+            close(pipes[1]);
+            close(pipes[2]);
+            close(pipes[3]);
+
+            execvp(currentCommand.simpleCommands[1].execArguments[0], currentCommand.simpleCommands[1].execArguments);
+        }
+        else
+        {
+            // fork third child to execute third command
+
+            if (fork() == 0)
+            {
+                dup2(log, 1);
+                cout << "  --------------------------------------------------------------" << endl;
+                cout << "  New child process 3 using pipe" << endl;
+                cout << "  --------------------------------------------------------------" << endl;
+                dup2(currentDescriptor, 1);
+
+                // replace third command stdin with input read of pipe 2
+
+                dup2(pipes[2], 0);
+
+                // close all ends of pipes
+
+                close(pipes[0]);
+                close(pipes[1]);
+                close(pipes[2]);
+                close(pipes[3]);
+
+                execvp(currentCommand.simpleCommands[2].execArguments[0], currentCommand.simpleCommands[2].execArguments);
+            }
+        }
+    }
+
+    // only the parent gets here and waits for 3 children to finish
+
+    close(pipes[0]);
+    close(pipes[1]);
+    close(pipes[2]);
+    close(pipes[3]);
+
+    for (i = 0; i < 3; i++)
+        wait(&status);
 }

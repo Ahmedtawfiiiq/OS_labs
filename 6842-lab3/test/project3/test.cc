@@ -1,47 +1,117 @@
-#include <iostream>
 #include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <sys/wait.h>
 
-using namespace std;
+/**
+ * Executes the command "cat scores | grep Villanova | cut -b 1-10".
+ * This quick-and-dirty version does no error checking.
+ *
+ * @author Jim Glenn
+ * @version 0.1 10/4/2004
+ */
 
-// 1  [0;31m	Red
-// 2  [1;31m	Bold Red
-// 3  [0;32m	Green
-// 4  [1;32m	Bold Green
-// 5  [0;33m	Yellow
-// 6  [01;33m	Bold Yellow
-// 7  [0;34m	Blue
-// 8  [1;34m	Bold Blue
-// 9  [0;35m	Magenta
-// 10 [1;35m	Bold Magenta
-// 11 [0;36m	Cyan
-// 12 [1;36m	Bold Cyan
-// 13 [0m	Reset
-
-int main()
+int main(int argc, char **argv)
 {
-    cout << "\033[0;31mHello world" << endl;
+    int status;
+    int i;
 
-    cout << "\033[1;31mHello world" << endl;
+    // arguments for commands; your parser would be responsible for
+    // setting up arrays like these
 
-    cout << "\033[0;32mHello world" << endl;
+    char *cat_args[] = {"cat", "f1.txt", NULL};
+    char *grep_args1[] = {"grep", "Villanova", NULL};
+    char *grep_args2[] = {"grep", "Villanova.cc", NULL};
 
-    cout << "\033[1;32mHello world" << endl;
+    // make 2 pipes (cat to grep and grep to cut); each has 2 fds
 
-    cout << "\033[0;33mHello world" << endl;
+    int pipes[4];
+    pipe(pipes);     // sets up 1st pipe
+    pipe(pipes + 2); // sets up 2nd pipe
 
-    cout << "\033[01;33mHello world" << endl;
+    // we now have 4 fds:
+    // pipes[0] = read end of cat->grep pipe (read by grep)
+    // pipes[1] = write end of cat->grep pipe (written by cat)
+    // pipes[2] = read end of grep->cut pipe (read by cut)
+    // pipes[3] = write end of grep->cut pipe (written by grep)
 
-    cout << "\033[0;34mHello world" << endl;
+    // Note that the code in each if is basically identical, so you
+    // could set up a loop to handle it.  The differences are in the
+    // indicies into pipes used for the dup2 system call
+    // and that the 1st and last only deal with the end of one pipe.
 
-    cout << "\033[1;34mHello world" << endl;
+    // fork the first child (to execute cat)
 
-    cout << "\033[0;35mHello world" << endl;
+    if (fork() == 0)
+    {
+        // replace cat's stdout with write part of 1st pipe
 
-    cout << "\033[1;35mHello world" << endl;
+        dup2(pipes[1], 1);
 
-    cout << "\033[0;36mHello world" << endl;
+        // close all pipes (very important!); end we're using was safely copied
 
-    cout << "\033[1;36mHello world" << endl;
+        close(pipes[0]);
+        close(pipes[1]);
+        close(pipes[2]);
+        close(pipes[3]);
 
-    return 0;
+        execvp(*cat_args, cat_args);
+    }
+    else
+    {
+        // fork second child (to execute grep)
+
+        if (fork() == 0)
+        {
+            // replace grep's stdin with read end of 1st pipe
+
+            dup2(pipes[0], 0);
+
+            // replace grep's stdout with write end of 2nd pipe
+
+            dup2(pipes[3], 1);
+
+            // close all ends of pipes
+
+            close(pipes[0]);
+            close(pipes[1]);
+            close(pipes[2]);
+            close(pipes[3]);
+
+            execvp(*grep_args1, grep_args1);
+        }
+        else
+        {
+            // fork third child (to execute cut)
+
+            if (fork() == 0)
+            {
+                // replace cut's stdin with input read of 2nd pipe
+
+                dup2(pipes[2], 0);
+
+                // close all ends of pipes
+
+                close(pipes[0]);
+                close(pipes[1]);
+                close(pipes[2]);
+                close(pipes[3]);
+
+                execvp(*grep_args2, grep_args2);
+            }
+        }
+    }
+
+    // only the parent gets here and waits for 3 children to finish
+
+    close(pipes[0]);
+    close(pipes[1]);
+    close(pipes[2]);
+    close(pipes[3]);
+
+    for (i = 0; i < 3; i++)
+        wait(&status);
 }
