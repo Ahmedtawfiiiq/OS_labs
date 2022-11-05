@@ -3,6 +3,8 @@
 
 using namespace std;
 
+void handle_sigint(int sig) {}
+
 int main()
 {
     while (true)
@@ -14,11 +16,15 @@ int main()
         tokenize(currentCommand);
 
         currentCommand.print();
+        classifyCommand(currentCommand);
 
-        bool lsFlag = false;
-        for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
+        if (currentCommand.commandType == "single")
         {
-            forkProcces(currentCommand.simpleCommands[i]);
+            forkProcces(currentCommand);
+        }
+        if (currentCommand.commandType == "pipe")
+        {
+            forkProcessPipe(currentCommand);
         }
     }
     return 0;

@@ -1,41 +1,23 @@
-
-
-                         COMMAND TABLE                
-
-  #   Simple Commands
-  --- ----------------------------------------------------------
-  0   ls -l /home/ahmed/Documents/ > /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
-  --------------------------------------------------------------
-  Output: /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
-  Input : default
-  Error : default
-
-
-Parent process: Child process ended
-
-myshell> New child process using execlp
-total 10224
--rw-rw-r-- 1 ahmed ahmed 10460826 Mar 28  2022 Engineering Optimization: Theory and Practice.pdf
-drwxrwxr-x 3 ahmed ahmed     4096 Nov  3 00:56 os-labs
--rw-rw-r-- 1 ahmed ahmed     2577 Dec 21  2021 PID controller *
-
-
-
-                         COMMAND TABLE                
-
-  #   Simple Commands
-  --- ----------------------------------------------------------
-  0   ls -l /home/ahmed/Documents/ >> /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
-  --------------------------------------------------------------
-  Output: /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/f1.txt
-  Input : default
-  Error : default
-
-
-Parent process: Child process ended
-
-myshell> New child process using execlp
-total 10224
--rw-rw-r-- 1 ahmed ahmed 10460826 Mar 28  2022 Engineering Optimization: Theory and Practice.pdf
-drwxrwxr-x 3 ahmed ahmed     4096 Nov  3 00:56 os-labs
--rw-rw-r-- 1 ahmed ahmed     2577 Dec 21  2021 PID controller *
+total 740
+-rwxrwxr-x 1 ahmed ahmed  98848 Nov  5 03:44 a.out
+-rwxrwxr-x 1 ahmed ahmed  60960 Nov  4 02:21 command
+-rw-rw-r-- 1 ahmed ahmed      2 Nov  4 06:11 command.h
+-rw-rw-r-- 1 ahmed ahmed 142064 Nov  4 03:51 command.o
+-rw-rw-r-- 1 ahmed ahmed      0 Nov  5 03:44 f1.txt
+-rw-rw-r-- 1 ahmed ahmed     78 Nov  5 01:59 f2.txt
+-rw-rw-r-- 1 ahmed ahmed      0 Nov  4 20:37 f3.txt
+drwxrwxr-x 3 ahmed ahmed   4096 Nov  4 03:14 lex-tutorial
+-rw-rw-r-- 1 ahmed ahmed  44704 Nov  4 03:50 lex.yy.c
+-rw-rw-r-- 1 ahmed ahmed  43256 Nov  4 03:50 lex.yy.o
+-rw-rw-r-- 1 ahmed ahmed    556 Nov  5 03:44 main.cc
+-rw-rw-r-- 1 ahmed ahmed    338 Nov  4 02:56 Makefile
+-rw-rw-r-- 1 ahmed ahmed    455 Nov  4 03:48 shell.l
+-rw-rw-r-- 1 ahmed ahmed   1352 Nov  4 03:50 shell.y
+-rwxrwxr-x 1 ahmed ahmed  16880 Nov  4 20:20 test
+-rw-rw-r-- 1 ahmed ahmed   1448 Nov  5 03:34 test.c
+-rw-rw-r-- 1 ahmed ahmed   8391 Nov  5 03:43 utilities.cc
+-rw-rw-r-- 1 ahmed ahmed    939 Nov  5 01:05 utilities.h
+drwxrwxr-x 3 ahmed ahmed   4096 Nov  4 03:03 yacc-tutorial
+-rw-rw-r-- 1 ahmed ahmed  48915 Nov  4 03:50 y.tab.c
+-rw-rw-r-- 1 ahmed ahmed   2419 Nov  4 03:50 y.tab.h
+-rw-rw-r-- 1 ahmed ahmed 230872 Nov  4 03:50 y.tab.o

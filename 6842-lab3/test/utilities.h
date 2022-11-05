@@ -12,6 +12,7 @@ class SimpleCommand
 {
 public:
     string command;
+    string simpleCommandType;
     char *execArguments[SIZE];
     vector<string> arguments;
 
@@ -27,6 +28,7 @@ public:
 class Command
 {
 public:
+    string commandType;
     SimpleCommand simpleCommand;
     vector<SimpleCommand> simpleCommands;
 
@@ -36,6 +38,18 @@ public:
 
 void tokenize(Command &);
 
-void forkProcces(SimpleCommand);
+void classifyCommand(Command &);
+
+void modifyCommand(Command &);
+
+void modifyFileDescriptorRewrite(Command &, int, int);
+
+void modifyFileDescriptorAppend(Command &, int, int);
+
+void execArguments(Command &, int, int cutPosition);
+
+void forkProcces(Command &);
+
+void forkProcessPipe(Command &);
 
 #endif

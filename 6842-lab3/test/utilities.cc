@@ -53,53 +53,21 @@ void tokenize(Command &currentCommand)
         currentCommand.simpleCommands.push_back(currentCommand.simpleCommand);
         currentCommand.simpleCommand.arguments.clear();
     }
+}
 
+void execArguments(SimpleCommand &currentSimpleCommand, int cutPosition)
+{
     // execArguments
-    for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
+    currentSimpleCommand.execArguments[0] = &currentSimpleCommand.command[0];
+
+    int k = -1;
+    for (int j = 0; j < currentSimpleCommand.arguments.size() - cutPosition; j++)
     {
-        currentCommand.simpleCommands[i].execArguments[0] = &currentCommand.simpleCommands[i].command[0];
-
-        int size = currentCommand.simpleCommands[i].arguments.size();
-        bool redirectionFlag = false;
-        if (size >= 3)
-        {
-            if (currentCommand.simpleCommands[i].arguments[size - 2] == ">")
-            {
-                currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[size - 1];
-                currentCommand.simpleCommands[i].file_desc = open(currentCommand.simpleCommands[i].outputFile.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
-                dup2(currentCommand.simpleCommands[i].file_desc, 1);
-                redirectionFlag = true;
-                close(currentCommand.simpleCommands[i].file_desc);
-            }
-            if (currentCommand.simpleCommands[i].arguments[size - 2] == ">>")
-            {
-                currentCommand.simpleCommands[i].outputFile = currentCommand.simpleCommands[i].arguments[size - 1];
-                currentCommand.simpleCommands[i].file_desc = open(currentCommand.simpleCommands[i].outputFile.c_str(), O_RDWR | O_CREAT | O_APPEND);
-                dup2(currentCommand.simpleCommands[i].file_desc, 1);
-                redirectionFlag = true;
-                close(currentCommand.simpleCommands[i].file_desc);
-            }
-        }
-
-        int k = -1;
-        int lastArgument = currentCommand.simpleCommands[i].arguments.size();
-        if (redirectionFlag)
-        {
-            lastArgument -= 2;
-        }
-        for (int j = 0; j < lastArgument; j++)
-        {
-            if (currentCommand.simpleCommands[i].arguments[j] != "&")
-            {
-                currentCommand.simpleCommands[i].execArguments[j + 1] = &currentCommand.simpleCommands[i].arguments[j][0];
-                k++;
-            }
-            else
-                currentCommand.simpleCommands[i].background = true; // set background flag
-        }
-
-        currentCommand.simpleCommands[i].execArguments[k + 2] = NULL;
+        currentSimpleCommand.execArguments[j + 1] = &currentSimpleCommand.arguments[j][0];
+        k++;
     }
+
+    currentSimpleCommand.execArguments[k + 2] = NULL;
 }
 
 void Command::print()
@@ -139,7 +107,92 @@ void Command::print()
     cout << endl;
 }
 
-void forkProcces(SimpleCommand currentSimpleCommand)
+void classifyCommand(Command &currentCommand)
+{
+    for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
+    {
+        if (currentCommand.simpleCommands.size() == 1)
+            currentCommand.commandType = "single";
+        else
+            currentCommand.commandType = "pipe";
+
+        int sizeOfArguments = currentCommand.simpleCommands[i].arguments.size();
+
+        if (currentCommand.simpleCommands[i].arguments[sizeOfArguments - 1] == "&")
+            currentCommand.simpleCommands[i].background = true;
+
+        for (int j = 0; j < sizeOfArguments; j++)
+        {
+            if (currentCommand.simpleCommands[i].arguments[j] == ">")
+                currentCommand.simpleCommands[i].simpleCommandType = "rewrite";
+            if (currentCommand.simpleCommands[i].arguments[j] == ">>")
+                currentCommand.simpleCommands[i].simpleCommandType = "append";
+        }
+    }
+}
+
+void modifyCommand(Command &currentCommand)
+{
+    for (int i = 0; i < currentCommand.simpleCommands.size(); i++)
+    {
+        if (currentCommand.simpleCommands[i].background && currentCommand.simpleCommands[i].simpleCommandType == "rewrite")
+        {
+            modifyFileDescriptorRewrite(currentCommand, i, 2);
+            execArguments(currentCommand.simpleCommands[i], 3);
+            continue;
+        }
+        else if (!currentCommand.simpleCommands[i].background && currentCommand.simpleCommands[i].simpleCommandType == "rewrite")
+        {
+            modifyFileDescriptorRewrite(currentCommand, i, 1);
+            execArguments(currentCommand.simpleCommands[i], 2);
+            continue;
+        }
+
+        if (currentCommand.simpleCommands[i].background && currentCommand.simpleCommands[i].simpleCommandType == "append")
+        {
+            modifyFileDescriptorAppend(currentCommand, i, 2);
+            execArguments(currentCommand.simpleCommands[i], 3);
+            continue;
+        }
+        else if (!currentCommand.simpleCommands[i].background && currentCommand.simpleCommands[i].simpleCommandType == "append")
+        {
+            modifyFileDescriptorAppend(currentCommand, i, 1);
+            execArguments(currentCommand.simpleCommands[i], 2);
+            continue;
+        }
+
+        if (currentCommand.simpleCommands[i].background)
+        {
+            execArguments(currentCommand.simpleCommands[i], 1);
+            currentCommand.simpleCommands[i].inputFile = currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 2];
+            continue;
+        }
+        else if (!currentCommand.simpleCommands[i].background)
+        {
+            execArguments(currentCommand.simpleCommands[i], 0);
+            currentCommand.simpleCommands[i].inputFile = currentCommand.simpleCommands[i].arguments[currentCommand.simpleCommands[i].arguments.size() - 1];
+            continue;
+        }
+    }
+}
+
+void modifyFileDescriptorRewrite(Command &currentCommand, int index, int position)
+{
+    currentCommand.simpleCommands[index].outputFile = currentCommand.simpleCommands[index].arguments[currentCommand.simpleCommands[index].arguments.size() - position];
+    currentCommand.simpleCommands[index].file_desc = open(currentCommand.simpleCommands[index].outputFile.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+    dup2(currentCommand.simpleCommands[index].file_desc, 1);
+    close(currentCommand.simpleCommands[index].file_desc);
+}
+
+void modifyFileDescriptorAppend(Command &currentCommand, int index, int position)
+{
+    currentCommand.simpleCommands[index].outputFile = currentCommand.simpleCommands[index].arguments[currentCommand.simpleCommands[index].arguments.size() - position];
+    currentCommand.simpleCommands[index].file_desc = open(currentCommand.simpleCommands[index].outputFile.c_str(), O_RDWR | O_CREAT | O_APPEND);
+    dup2(currentCommand.simpleCommands[index].file_desc, 1);
+    close(currentCommand.simpleCommands[index].file_desc);
+}
+
+void forkProcces(Command &currentCommand)
 {
     pid_t pid;
 
@@ -153,18 +206,42 @@ void forkProcces(SimpleCommand currentSimpleCommand)
     else if (pid == 0)
     {
         cout << "New child process using execlp" << endl;
-        // redirection before execute the command
-        execvp(currentSimpleCommand.execArguments[0], currentSimpleCommand.execArguments);
+        modifyCommand(currentCommand);
+        execvp(currentCommand.simpleCommands[0].execArguments[0], currentCommand.simpleCommands[0].execArguments);
         cout << "execlp() call failed" << endl;
         exit(127);
     }
     else
     {
-        if (currentSimpleCommand.background)
+        if (currentCommand.simpleCommands[0].background)
             wait(0);
-        close(currentSimpleCommand.file_desc);
         cout << endl;
         cout << "Parent process: Child process ended" << endl;
         cout << endl;
+    }
+}
+
+void forkProcessPipe(Command &currentCommand)
+{
+    int pipefd[2];
+    int pid;
+
+    pipe(pipefd);
+
+    pid = fork();
+
+    modifyCommand(currentCommand);
+
+    if (pid == 0)
+    {
+        dup2(pipefd[0], 0);
+        close(pipefd[1]);
+        execvp(currentCommand.simpleCommands[1].execArguments[0], currentCommand.simpleCommands[1].execArguments);
+    }
+    else
+    {
+        dup2(pipefd[1], 1);
+        close(pipefd[0]);
+        execvp(currentCommand.simpleCommands[0].execArguments[0], currentCommand.simpleCommands[0].execArguments);
     }
 }
