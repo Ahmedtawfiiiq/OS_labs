@@ -258,7 +258,7 @@ void forkProcces(Command &currentCommand)
     pid_t pid;
 
     int currentDescriptor = dup(1);
-    int log = open(currentCommand.defaultlog.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+    int log = open(currentCommand.defaultlog.c_str(), O_RDWR | O_CREAT | O_APPEND);
 
     pid = fork();
 
@@ -314,7 +314,7 @@ void forkProcessPipe(Command &currentCommand)
     int pid;
 
     int currentDescriptor = dup(1);
-    int log = open(currentCommand.defaultlog.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+    int log = open(currentCommand.defaultlog.c_str(), O_RDWR | O_CREAT | O_APPEND);
 
     pipe(pipefd);
 
@@ -322,23 +322,22 @@ void forkProcessPipe(Command &currentCommand)
 
     if (pid == 0)
     {
-        // dup2(log, 1);
+        dup2(log, 1);
         cout << "  --------------------------------------------------------------" << endl;
         cout << "  New child process 2 using pipe" << endl;
         cout << "  --------------------------------------------------------------" << endl;
-        // close(log);
+        dup2(currentDescriptor, 1);
         dup2(pipefd[0], 0);
         close(pipefd[1]);
-        dup2(currentDescriptor, 1);
         execvp(currentCommand.simpleCommands[1].execArguments[0], currentCommand.simpleCommands[1].execArguments);
     }
     else
     {
-        // dup2(log, 1);
+        dup2(log, 1);
         cout << "  --------------------------------------------------------------" << endl;
         cout << "  New child process 1 using pipe" << endl;
         cout << "  --------------------------------------------------------------" << endl;
-        // close(log);
+        dup2(currentDescriptor, 1);
         dup2(pipefd[1], 1);
         close(pipefd[0]);
         execvp(currentCommand.simpleCommands[0].execArguments[0], currentCommand.simpleCommands[0].execArguments);

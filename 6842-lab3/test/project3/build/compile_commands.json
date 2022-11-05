@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build",
+  "command": "/usr/bin/g++    -g   -std=gnu++17 -o CMakeFiles/project3.dir/main.cc.o -c /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/main.cc",
+  "file": "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/main.cc"
+},
+{
+  "directory": "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/build",
+  "command": "/usr/bin/g++    -g   -std=gnu++17 -o CMakeFiles/project3.dir/utilities.cc.o -c /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.cc",
+  "file": "/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.cc"
+}
+]

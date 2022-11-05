@@ -26,9 +26,29 @@ void handle_sigint(int sig)
     cout << endl;
 }
 
+void proc_exit(int sig)
+{
+    cout << endl;
+    cout << "  --------------------------------------------------------------" << endl;
+    cout << "  A Child is terminated" << endl;
+    cout << "  --------------------------------------------------------------" << endl;
+    cout << endl;
+}
+
+void handle_sigpipe(int sig)
+{
+    cout << endl;
+    cout << "  --------------------------------------------------------------" << endl;
+    cout << "  Pipe is terminated" << endl;
+    cout << "  --------------------------------------------------------------" << endl;
+    cout << endl;
+}
+
 int main()
 {
     signal(SIGINT, handle_sigint);
+    signal(SIGCHLD, proc_exit);
+    signal(SIGTERM, handle_sigpipe);
 
     int defaultout = dup(1);
 
