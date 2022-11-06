@@ -6,8 +6,9 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glob.h>
 
-#include "system.h"
+#include "system.hpp"
 
 #define REWRITE O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR
 #define APPEND O_RDWR | O_CREAT | O_APPEND
@@ -24,6 +25,9 @@ void setFileDescriptor(Command &currentCommand, int index, int mode)
 
 void forkProcces(Command &currentCommand)
 {
+    cout << "\033[0;35m  --------------------------------------------------------------\033[1;32m" << endl;
+    cout << endl;
+
     int mode;
 
     if (currentCommand.simpleCommands[0].simpleCommandType == "rewrite")
@@ -88,6 +92,8 @@ void forkProcces(Command &currentCommand)
 
 void forkProcessPipe(Command &currentCommand)
 {
+    cout << "\033[1;32m";
+
     int mode[2];
 
     for (int i = 0; i < 2; i++)
@@ -158,6 +164,8 @@ void changeDirectory(Command currentCommand)
 
 void forkProcessDoublePipe(Command &currentCommand)
 {
+    cout << "\033[1;32m";
+
     int mode[3];
 
     for (int i = 0; i < 3; i++)
@@ -190,6 +198,8 @@ void forkProcessDoublePipe(Command &currentCommand)
     // pipes[3] = write end of command 2
 
     // fork the first child to execute first command
+
+    cout << "\033[1;32m";
 
     if (fork() == 0)
     {
@@ -278,4 +288,34 @@ void forkProcessDoublePipe(Command &currentCommand)
 
     for (i = 0; i < 3; i++)
         wait(&status);
+}
+
+void wildcard(string s)
+{
+    char **found;
+    glob_t gstruct;
+    int r;
+
+    r = glob(s.c_str(), GLOB_ERR, NULL, &gstruct);
+
+    // check for errors
+    if (r != 0)
+    {
+        if (r == GLOB_NOMATCH)
+            fprintf(stderr, "No matches\n");
+        else
+            fprintf(stderr, "Error\n");
+        exit(1);
+    }
+
+    // success
+    found = gstruct.gl_pathv;
+    cout << "\033[0;35m  --------------------------------------------------------------" << endl;
+    while (*found)
+    {
+        printf("  \033[1;32m%s\n", *found);
+        found++;
+    }
+    cout << "\033[0;35m  --------------------------------------------------------------" << endl;
+    cout << "\033[0m";
 }

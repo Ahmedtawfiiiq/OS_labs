@@ -3,12 +3,12 @@
 
 CMakeFiles/project3.dir/main.cc.o
  /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/main.cc
- /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.h
- /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
+ /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.hpp
+ /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp
 CMakeFiles/project3.dir/system.cc.o
  /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.cc
- /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.h
- /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
+ /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.hpp
+ /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp
 CMakeFiles/project3.dir/utilities.cc.o
  /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.cc
- /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
+ /home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp

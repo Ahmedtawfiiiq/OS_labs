@@ -1,8 +1,7 @@
 #ifndef system_h
 #define system_h
 
-#include "utilities.h"
-
+#include "utilities.hpp"
 
 void setFileDescriptor(Command &, int, int);
 
@@ -13,5 +12,7 @@ void forkProcessPipe(Command &);
 void changeDirectory(Command);
 
 void forkProcessDoublePipe(Command &);
+
+void wildcard(string);
 
 #endif

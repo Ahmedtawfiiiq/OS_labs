@@ -8,8 +8,8 @@
 #include <fcntl.h>
 #include <signal.h>
 
-#include "utilities.h"
-#include "system.h"
+#include "utilities.hpp"
+#include "system.hpp"
 
 using namespace std;
 
@@ -74,6 +74,9 @@ int main()
         {
             if (currentCommand.simpleCommands[0].command == "cd")
                 changeDirectory(currentCommand);
+
+            else if (currentCommand.simpleCommands[0].command == "echo")
+                wildcard(currentCommand.simpleCommands[0].arguments[0]);
 
             else
                 forkProcces(currentCommand);

@@ -6,35 +6,33 @@
 
 #IncludeRegexTransform: 
 
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/main.cc
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.cc
 iostream
+-
+fcntl.h
+-
+sys/stat.h
+-
+sys/types.h
+-
+sys/wait.h
+-
+unistd.h
 -
 stdio.h
 -
 stdlib.h
 -
-unistd.h
+glob.h
 -
-wait.h
--
-sys/types.h
--
-sys/stat.h
--
-fcntl.h
--
-signal.h
--
-utilities.h
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
-system.h
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.h
+system.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.hpp
 
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.h
-utilities.h
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.hpp
+utilities.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp
 
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.h
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp
 vector
 -
 string
