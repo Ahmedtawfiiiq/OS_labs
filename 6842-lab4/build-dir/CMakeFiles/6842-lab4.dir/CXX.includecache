@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/algorithms.cc
+algorithms.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/algorithms.hpp
+process.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/process.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/algorithms.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/main.cc
+bits/stdc++.h
+-
+tokenizer.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/tokenizer.hpp
+process.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/process.hpp
+algorithms.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/algorithms.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/process.cc
+process.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/process.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/process.hpp
+bits/stdc++.h
+-
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/tokenizer.cc
+tokenizer.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/tokenizer.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/tokenizer.hpp
+bits/stdc++.h
+-
+
