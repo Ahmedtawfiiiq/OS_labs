@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.cc
+iostream
+-
+fcntl.h
+-
+sys/stat.h
+-
+sys/types.h
+-
+sys/wait.h
+-
+unistd.h
+-
+stdio.h
+-
+stdlib.h
+-
+glob.h
+-
+system.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/system.hpp
+utilities.hpp
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp
+
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/project3/utilities.hpp
+vector
+-
+string
+-
+

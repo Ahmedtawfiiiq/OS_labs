@@ -1,0 +1,1 @@
+drwxrwxr-x  6 ahmed ahmed     4096 Sep 16 21:36 build-siemensTask2CPP-Desktop_Qt_6_3_1_GCC_64bit-Debug

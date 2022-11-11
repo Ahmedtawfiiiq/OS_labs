@@ -1,0 +1,7 @@
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/install/strip.dir
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/install.dir
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/list_install_components.dir
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/rebuild_cache.dir
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/edit_cache.dir
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/install/local.dir
+/home/ahmed/Documents/os-labs/OS_labs/6842-lab3/test/6842-lab3/build/CMakeFiles/project3.dir

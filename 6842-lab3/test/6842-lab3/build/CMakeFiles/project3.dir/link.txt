@@ -1,0 +1,1 @@
+/usr/bin/g++  -g   CMakeFiles/project3.dir/main.cc.o CMakeFiles/project3.dir/system.cc.o CMakeFiles/project3.dir/utilities.cc.o  -o lab3 
