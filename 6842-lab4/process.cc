@@ -1,6 +1,6 @@
 #include "process.hpp"
 
-void organizeData(Processes &p, vector<vector<string>> inputData)
+void organizeData(Processes &p, vector<vector<string>> inputData, int)
 {
     Process px;
     for (int i = 0; i < inputData.size(); i++)
@@ -9,6 +9,11 @@ void organizeData(Processes &p, vector<vector<string>> inputData)
         px.at = stoi(inputData[i][1]);
         px.bt = stoi(inputData[i][2]);
         p.processes.push_back(px);
+    }
+
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        p.processes[i].output.second = p.stopRange;
     }
 }
 
@@ -64,6 +69,30 @@ void stats(Processes p)
     cout << "|" << endl;
 }
 
+void trace(Processes p)
+{
+    cout << p.scheduleName << "  ";
+
+    for (int i = 0; i <= p.stopRange; i++)
+    {
+        cout << i % 10 << " ";
+    }
+    cout << endl;
+
+    cout << "------------------------------------------------" << endl;
+    for (int q = 0; q < p.processes.size(); q++)
+    {
+        cout << p.processes[q].pid << "     ";
+        cout << p.processes[q].output.first;
+        for (int v = 0; v < p.processes[q].output.second; v++)
+        {
+            cout << "| ";
+        }
+        cout << "|" << endl;
+    }
+    cout << "------------------------------------------------" << endl;
+}
+
 void doFCFS(Processes &p)
 {
     p.processes[0].ct = p.processes[0].at + p.processes[0].bt;
@@ -86,55 +115,28 @@ void doFCFS(Processes &p)
         p.tatMean += p.processes[i].tat;
     }
 
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        for (int j = 0; j < p.processes[i].at; j++)
+        {
+            p.processes[i].output.first += "| ";
+            p.processes[i].output.second--;
+        }
+
+        for (int j = 0; j < p.processes[i].wt; j++)
+        {
+            p.processes[i].output.first += "|.";
+            p.processes[i].output.second--;
+        }
+
+        for (int j = 0; j < p.processes[i].bt; j++)
+        {
+            p.processes[i].output.first += "|*";
+            p.processes[i].output.second--;
+        }
+    }
+
     p.tatMean /= p.processes.size();
-}
-
-void traceFCFS(Processes p)
-{
-    cout << p.scheduleName << "  ";
-
-    for (int i = 0; i <= p.stopRange; i++)
-    {
-        cout << i % 10 << " ";
-    }
-
-    cout << endl;
-    cout << "------------------------------------------------";
-    cout << endl;
-
-    for (Process process : p.processes)
-    {
-        int stopSimulation = p.stopRange;
-
-        cout << process.pid << "     ";
-
-        for (int k = 0; k < process.at; k++)
-        {
-            cout << "| ";
-            stopSimulation--;
-        }
-
-        for (int i = 0; i < process.wt; i++)
-        {
-            cout << "|.";
-            stopSimulation--;
-        }
-
-        for (int j = 0; j < process.bt; j++)
-        {
-            cout << "|*";
-            stopSimulation--;
-        }
-        for (int l = 0; l < stopSimulation; l++)
-        {
-            cout << "| ";
-        }
-
-        cout << '|';
-        cout << endl;
-    }
-
-    cout << "------------------------------------------------" << endl;
 }
 
 void doRR(Processes &p, int quantum)
@@ -158,11 +160,6 @@ void doRR(Processes &p, int quantum)
 
     vector<int> last(p.processes.size());
     fill(last.begin(), last.end(), 0);
-
-    for (int i = 0; i < p.processes.size(); i++)
-    {
-        p.processes[i].output.second = p.stopRange;
-    }
 
     // simulate the part of arrive time
     for (int i = 0; i < p.processes.size(); i++)
@@ -258,28 +255,4 @@ void doRR(Processes &p, int quantum)
     }
 
     p.tatMean /= p.processes.size();
-}
-
-void traceRR(Processes p)
-{
-    cout << p.scheduleName << "  ";
-
-    for (int i = 0; i <= p.stopRange; i++)
-    {
-        cout << i % 10 << " ";
-    }
-    cout << endl;
-
-    cout << "------------------------------------------------" << endl;
-    for (int q = 0; q < p.processes.size(); q++)
-    {
-        cout << p.processes[q].pid << "     ";
-        cout << p.processes[q].output.first;
-        for (int v = 0; v < p.processes[q].output.second; v++)
-        {
-            cout << "| ";
-        }
-        cout << "|" << endl;
-    }
-    cout << "------------------------------------------------" << endl;
 }

@@ -27,12 +27,11 @@ public:
     Processes() : scheduleName(""), tatMean(0) {}
 };
 
-void organizeData(Processes &, vector<vector<string>>);
+void organizeData(Processes &, vector<vector<string>>, int);
 
-void stats(Processes p);
+void stats(Processes);
+void trace(Processes);
 
 void doFCFS(Processes &);
-void traceFCFS(Processes);
 
 void doRR(Processes &, int);
-void traceRR(Processes);

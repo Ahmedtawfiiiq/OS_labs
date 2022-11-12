@@ -25,7 +25,7 @@ int main()
 
     Processes p;
     p.stopRange = stopRange;
-    organizeData(p, processesData);
+    organizeData(p, processesData, stopRange);
 
     switch (typeData[0])
     {
@@ -33,7 +33,7 @@ int main()
         p.scheduleName = "FCFS";
         doFCFS(p);
         if (visualizationType == "trace")
-            traceFCFS(p);
+            trace(p);
         if (visualizationType == "stats")
             stats(p);
         break;
@@ -41,7 +41,7 @@ int main()
         p.scheduleName = "RR-" + to_string(typeData[1]);
         doRR(p, typeData[1]);
         if (visualizationType == "trace")
-            traceRR(p);
+            trace(p);
         if (visualizationType == "stats")
             stats(p);
         break;
