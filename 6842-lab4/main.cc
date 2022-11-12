@@ -7,20 +7,31 @@ using namespace std;
 
 int main()
 {
-    string s = "";
+    vector<int> typeData;
+    typeTokenizer(typeData);
+
+    string s = ""; // when to stop the simulation
     getline(cin, s);
 
-    string n = "";
+    string n = ""; // number of processes
     getline(cin, n);
 
     vector<vector<string>> processesData;
-    inputTokenizer(processesData, stoi(n));
-    displayData(processesData);
+    processesTokenizer(processesData, stoi(n));
 
     Processes p;
     organizeData(p, processesData);
 
-    doFCFS(p);
-
-    p.doSimulation(stoi(s));
+    switch (typeData[0])
+    {
+    case 1:
+        doFCFS(p);
+        doSimulationFCFS(p, stoi(s));
+        break;
+    case 2:
+        doRR(p, typeData[1]);
+        break;
+    default:
+        break;
+    }
 }

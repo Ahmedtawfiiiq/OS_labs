@@ -1,6 +1,18 @@
 #include "tokenizer.hpp"
 
-void inputTokenizer(vector<vector<string>> &data, int n)
+void typeTokenizer(vector<int> &typeData)
+{
+    string data = "";
+    string intermediate = "";
+    getline(cin, data);
+    stringstream tokenizer(data);
+    while (getline(tokenizer, intermediate, '-'))
+    {
+        typeData.push_back(stoi(intermediate));
+    }
+}
+
+void processesTokenizer(vector<vector<string>> &data, int n)
 {
     string line = "";
     string intermediate = "";
