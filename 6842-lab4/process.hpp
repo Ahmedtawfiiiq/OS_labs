@@ -35,3 +35,7 @@ void trace(Processes);
 void doFCFS(Processes &);
 
 void doRR(Processes &, int);
+
+void doSPN(Processes &);
+
+void doSRT(Processes &p);

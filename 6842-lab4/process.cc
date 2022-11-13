@@ -1,4 +1,8 @@
+#include <limits>
+
 #include "process.hpp"
+
+using namespace std;
 
 void organizeData(Processes &p, vector<vector<string>> inputData, int)
 {
@@ -14,6 +18,16 @@ void organizeData(Processes &p, vector<vector<string>> inputData, int)
     for (int i = 0; i < p.processes.size(); i++)
     {
         p.processes[i].output.second = p.stopRange;
+    }
+
+    // simulate the part of arrive time
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        for (int j = 0; j < p.processes[i].at; j++)
+        {
+            p.processes[i].output.first += "| ";
+            p.processes[i].output.second--;
+        }
     }
 }
 
@@ -117,12 +131,6 @@ void doFCFS(Processes &p)
 
     for (int i = 0; i < p.processes.size(); i++)
     {
-        for (int j = 0; j < p.processes[i].at; j++)
-        {
-            p.processes[i].output.first += "| ";
-            p.processes[i].output.second--;
-        }
-
         for (int j = 0; j < p.processes[i].wt; j++)
         {
             p.processes[i].output.first += "|.";
@@ -160,16 +168,6 @@ void doRR(Processes &p, int quantum)
 
     vector<int> last(p.processes.size());
     fill(last.begin(), last.end(), 0);
-
-    // simulate the part of arrive time
-    for (int i = 0; i < p.processes.size(); i++)
-    {
-        for (int j = 0; j < p.processes[i].at; j++)
-        {
-            p.processes[i].output.first += "| ";
-            p.processes[i].output.second--;
-        }
-    }
 
     int completed = 0;
 
@@ -255,4 +253,157 @@ void doRR(Processes &p, int quantum)
     }
 
     p.tatMean /= p.processes.size();
+}
+
+void doSPN(Processes &p)
+{
+    int currentTime = 0;
+    int completed = 0;
+    int prev = 0;
+
+    int size = p.processes.size();
+
+    vector<int> isCompleted(size);
+    fill(isCompleted.begin(), isCompleted.end(), 0);
+
+    while (completed != size)
+    {
+        int currentProcess = -1;
+        int minimum = numeric_limits<int>::max();
+        for (int i = 0; i < size; i++)
+        {
+            if (p.processes[i].at <= currentTime && isCompleted[i] == 0)
+            {
+                if (p.processes[i].bt < minimum)
+                {
+                    minimum = p.processes[i].bt;
+                    currentProcess = i;
+                }
+                if (p.processes[i].bt == minimum)
+                {
+                    if (p.processes[i].at < p.processes[currentProcess].at)
+                    {
+                        minimum = p.processes[i].bt;
+                        currentProcess = i;
+                    }
+                }
+            }
+        }
+        if (currentProcess != -1)
+        {
+            p.processes[currentProcess].ct = currentTime + p.processes[currentProcess].bt;
+            p.processes[currentProcess].tat = p.processes[currentProcess].ct - p.processes[currentProcess].at;
+            p.processes[currentProcess].wt = p.processes[currentProcess].tat - p.processes[currentProcess].bt;
+            p.tatMean += p.processes[currentProcess].tat;
+
+            isCompleted[currentProcess] = 1;
+            completed++;
+            currentTime = p.processes[currentProcess].ct;
+            prev = currentTime;
+        }
+        else
+        {
+            currentTime++;
+        }
+    }
+
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        for (int j = 0; j < p.processes[i].wt; j++)
+        {
+            p.processes[i].output.first += "|.";
+            p.processes[i].output.second--;
+        }
+
+        for (int j = 0; j < p.processes[i].bt; j++)
+        {
+            p.processes[i].output.first += "|*";
+            p.processes[i].output.second--;
+        }
+    }
+
+    p.tatMean /= size;
+}
+
+void doSRT(Processes &p)
+{
+    int currentTime = 0;
+    int completed = 0;
+
+    int size = p.processes.size();
+
+    vector<int> isCompleted(size);
+    fill(isCompleted.begin(), isCompleted.end(), 0);
+
+    vector<int> burstRemaining(p.processes.size());
+
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        burstRemaining[i] = p.processes[i].bt;
+    }
+
+    vector<int> last(p.processes.size());
+    fill(last.begin(), last.end(), 0);
+
+    while (completed != size)
+    {
+        int currentProcess = -1;
+        int minimum = numeric_limits<int>::max();
+
+        vector<int> wasMinimum(size);
+        fill(wasMinimum.begin(), wasMinimum.end(), 0);
+
+        // loop to choose the process with minimum remaining burst time
+        for (int i = 0; i < size; i++)
+        {
+            if (p.processes[i].at <= currentTime && isCompleted[i] == 0)
+            {
+                if (burstRemaining[i] < minimum)
+                {
+                    minimum = burstRemaining[i];
+                    currentProcess = i;
+                    wasMinimum[i] = 1;
+                }
+                else if (isCompleted[i] == 0)
+                {
+                    p.processes[i].output.first += "|.";
+                    p.processes[i].output.second--;
+                }
+            }
+        }
+
+        for (int y = 0; y < size; y++)
+        {
+            if (y != currentProcess && wasMinimum[y] == 1)
+            {
+                p.processes[y].output.first += "|.";
+                p.processes[y].output.second--;
+            }
+        }
+
+        fill(wasMinimum.begin(), wasMinimum.end(), 0);
+
+        currentTime++;
+        last[currentProcess] = currentTime;
+
+        if (currentProcess != -1)
+        {
+            burstRemaining[currentProcess] -= 1;
+            p.processes[currentProcess].output.first += "|*";
+            p.processes[currentProcess].output.second--;
+
+            if (burstRemaining[currentProcess] == 0)
+            {
+                p.processes[currentProcess].ct = currentTime;
+                p.processes[currentProcess].tat = p.processes[currentProcess].ct - p.processes[currentProcess].at;
+                p.processes[currentProcess].wt = p.processes[currentProcess].tat - p.processes[currentProcess].bt;
+                p.tatMean += p.processes[currentProcess].tat;
+
+                isCompleted[currentProcess] = 1;
+                completed++;
+            }
+        }
+    }
+
+    p.tatMean /= size;
 }

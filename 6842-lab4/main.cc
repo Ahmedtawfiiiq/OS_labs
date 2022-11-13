@@ -32,20 +32,25 @@ int main()
     case 1:
         p.scheduleName = "FCFS";
         doFCFS(p);
-        if (visualizationType == "trace")
-            trace(p);
-        if (visualizationType == "stats")
-            stats(p);
         break;
     case 2:
         p.scheduleName = "RR-" + to_string(typeData[1]);
         doRR(p, typeData[1]);
-        if (visualizationType == "trace")
-            trace(p);
-        if (visualizationType == "stats")
-            stats(p);
+        break;
+    case 3:
+        p.scheduleName = "SPN";
+        doSPN(p);
+        break;
+    case 4:
+        p.scheduleName = "SRT";
+        doSRT(p);
         break;
     default:
         break;
     }
+
+    if (visualizationType == "trace")
+        trace(p);
+    if (visualizationType == "stats")
+        stats(p);
 }
