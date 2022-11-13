@@ -12,6 +12,16 @@ void typeTokenizer(vector<int> &typeData)
     }
 }
 
+bool sortColumn(const vector<string> &v1, const vector<string> &v2)
+{
+    if (stoi(v1[1]) < stoi(v2[1]))
+        return stoi(v1[1]) < stoi(v2[1]);
+    else if (stoi(v1[1]) == stoi(v2[1]))
+        return v1[2] < v2[2];
+    else
+        return false;
+}
+
 void processesTokenizer(vector<vector<string>> &data, int n)
 {
     string line = "";
@@ -27,6 +37,8 @@ void processesTokenizer(vector<vector<string>> &data, int n)
         }
         data.push_back(rowData);
     }
+
+    sort(data.begin(), data.end(), sortColumn);
 }
 
 void displayData(vector<vector<string>> data)

@@ -2,6 +2,8 @@
 
 using namespace std;
 
+bool sortColumn(const vector<string> &v1, const vector<string> &v2);
+
 void typeTokenizer(vector<int> &);
 
 void processesTokenizer(vector<vector<string>> &data, int n);

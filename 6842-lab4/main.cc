@@ -22,6 +22,7 @@ int main()
 
     vector<vector<string>> processesData;
     processesTokenizer(processesData, stoi(n));
+    displayData(processesData);
 
     Processes p;
     p.stopRange = stopRange;

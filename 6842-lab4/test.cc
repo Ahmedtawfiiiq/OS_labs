@@ -30,6 +30,7 @@ int main()
     int total_response_time = 0;
     int total_idle_time = 0;
     float throughput;
+    int burst_remaining[100];
     int is_completed[100];
     memset(is_completed, 0, sizeof(is_completed));
 
@@ -45,6 +46,7 @@ int main()
         cout << "Enter burst time of process " << i + 1 << ": ";
         cin >> p[i].burst_time;
         p[i].pid = i + 1;
+        burst_remaining[i] = p[i].burst_time;
         cout << endl;
     }
 
@@ -60,38 +62,47 @@ int main()
         {
             if (p[i].arrival_time <= current_time && is_completed[i] == 0)
             {
-                if (p[i].burst_time < mn)
+                if (burst_remaining[i] < mn)
                 {
-                    mn = p[i].burst_time;
+                    mn = burst_remaining[i];
                     idx = i;
                 }
-                if (p[i].burst_time == mn)
+                if (burst_remaining[i] == mn)
                 {
                     if (p[i].arrival_time < p[idx].arrival_time)
                     {
-                        mn = p[i].burst_time;
+                        mn = burst_remaining[i];
                         idx = i;
                     }
                 }
             }
         }
+
         if (idx != -1)
         {
-            p[idx].start_time = current_time;
-            p[idx].completion_time = p[idx].start_time + p[idx].burst_time;
-            p[idx].turnaround_time = p[idx].completion_time - p[idx].arrival_time;
-            p[idx].waiting_time = p[idx].turnaround_time - p[idx].burst_time;
-            p[idx].response_time = p[idx].start_time - p[idx].arrival_time;
-
-            total_turnaround_time += p[idx].turnaround_time;
-            total_waiting_time += p[idx].waiting_time;
-            total_response_time += p[idx].response_time;
-            total_idle_time += p[idx].start_time - prev;
-
-            is_completed[idx] = 1;
-            completed++;
-            current_time = p[idx].completion_time;
+            if (burst_remaining[idx] == p[idx].burst_time)
+            {
+                p[idx].start_time = current_time;
+                total_idle_time += p[idx].start_time - prev;
+            }
+            burst_remaining[idx] -= 1;
+            current_time++;
             prev = current_time;
+
+            if (burst_remaining[idx] == 0)
+            {
+                p[idx].completion_time = current_time;
+                p[idx].turnaround_time = p[idx].completion_time - p[idx].arrival_time;
+                p[idx].waiting_time = p[idx].turnaround_time - p[idx].burst_time;
+                p[idx].response_time = p[idx].start_time - p[idx].arrival_time;
+
+                total_turnaround_time += p[idx].turnaround_time;
+                total_waiting_time += p[idx].waiting_time;
+                total_response_time += p[idx].response_time;
+
+                is_completed[idx] = 1;
+                completed++;
+            }
         }
         else
         {
