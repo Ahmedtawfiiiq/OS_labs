@@ -81,6 +81,21 @@ void stats(Processes p)
     cout << "|";
     printf("%5.2lf", p.tatMean);
     cout << "|" << endl;
+
+    cout << "NormTurn   ";
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        cout << "|";
+        printf("%5.2lf", (double)p.processes[i].tat / (double)p.processes[i].bt);
+    }
+    cout << "|";
+    double averageNormalizedTurnaroundTime = 0.0;
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        averageNormalizedTurnaroundTime += (double)p.processes[i].tat / (double)p.processes[i].bt;
+    }
+    printf("%5.2lf", averageNormalizedTurnaroundTime / p.processes.size());
+    cout << "|" << endl;
 }
 
 void trace(Processes p)
@@ -402,6 +417,65 @@ void doSRT(Processes &p)
                 isCompleted[currentProcess] = 1;
                 completed++;
             }
+        }
+    }
+
+    p.tatMean /= size;
+}
+
+void doHRR(Processes &p)
+{
+    double currentTime = 0;
+    int totalBurstTime = 0;
+    int size = p.processes.size();
+
+    vector<int> completed(size);
+    fill(completed.begin(), completed.end(), 0);
+
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        totalBurstTime += p.processes[i].at;
+    }
+
+    for (currentTime = p.processes[0].at; currentTime < totalBurstTime;)
+    {
+        float ratio = numeric_limits<int>::min();
+        float currentHighestRatio;
+
+        int currentProcess;
+        for (int i = 0; i < size; i++)
+        {
+            if (p.processes[i].at <= currentTime && completed[i] != 1)
+            {
+                currentHighestRatio = (p.processes[i].bt + (currentTime - p.processes[i].at)) / p.processes[i].bt;
+
+                if (ratio < currentHighestRatio)
+                {
+                    ratio = currentHighestRatio;
+                    currentProcess = i;
+                }
+            }
+        }
+
+        currentTime += p.processes[currentProcess].bt;
+        p.processes[currentProcess].wt = currentTime - p.processes[currentProcess].at - p.processes[currentProcess].bt;
+        p.processes[currentProcess].tat = currentTime - p.processes[currentProcess].at;
+        p.tatMean += p.processes[currentProcess].tat;
+        completed[currentProcess] = 1;
+    }
+
+    for (int i = 0; i < p.processes.size(); i++)
+    {
+        for (int j = 0; j < p.processes[i].wt; j++)
+        {
+            p.processes[i].output.first += "|.";
+            p.processes[i].output.second--;
+        }
+
+        for (int j = 0; j < p.processes[i].bt; j++)
+        {
+            p.processes[i].output.first += "|*";
+            p.processes[i].output.second--;
         }
     }
 

@@ -22,7 +22,7 @@ int main()
 
     vector<vector<string>> processesData;
     processesTokenizer(processesData, stoi(n));
-    displayData(processesData);
+    // displayData(processesData);
 
     Processes p;
     p.stopRange = stopRange;
@@ -45,6 +45,10 @@ int main()
     case 4:
         p.scheduleName = "SRT";
         doSRT(p);
+        break;
+    case 5:
+        p.scheduleName = "HRRN";
+        doHRR(p);
         break;
     default:
         break;
