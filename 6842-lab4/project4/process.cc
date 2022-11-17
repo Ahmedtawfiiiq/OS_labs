@@ -525,6 +525,12 @@ void doFBq1(Processes &p)
 
     queue<int> q[5];
 
+    vector<int> last(size);
+    for (int v = 0; v < size; v++)
+    {
+        last[v] = p.processes[v].at;
+    }
+
     // we need to call it every time we change the current time
     arrivedProcesses = checkArrivedProcesses(p, currentTime, isCompleted, isArrived);
     for (int i = 0; i < arrivedProcesses.size(); i++)
@@ -550,8 +556,18 @@ void doFBq1(Processes &p)
 
                 cout << p.processes[currentProcess].pid << " ";
 
+                for (int h = 0; h < abs(last[currentProcess] - currentTime); h++)
+                {
+                    p.processes[currentProcess].output.first += "|.";
+                    p.processes[currentProcess].output.second--;
+                }
+
                 currentTime += quantum;
+                last[currentProcess] = currentTime;
+
                 remainingBurstTime[currentProcess]--;
+                p.processes[currentProcess].output.first += "|*";
+                p.processes[currentProcess].output.second--;
 
                 arrivedProcesses = checkArrivedProcesses(p, currentTime, isCompleted, isArrived);
                 for (int i = 0; i < arrivedProcesses.size(); i++)
@@ -661,6 +677,12 @@ void doFBq2i(Processes &p)
 
     string lastProcess = "";
 
+    vector<int> last(size);
+    for (int v = 0; v < size; v++)
+    {
+        last[v] = p.processes[v].at;
+    }
+
     while (completedProcesses < size)
     {
         for (int l = 0; l < numberOfQueues; l++)
@@ -672,17 +694,38 @@ void doFBq2i(Processes &p)
                 if (lastProcess == p.processes[currentProcess].pid)
                     continue;
 
-                for (int y = 0; y < quantum[l]; y++)
-                    cout << p.processes[currentProcess].pid << " ";
+                for (int h = 0; h < abs(last[currentProcess] - currentTime); h++)
+                {
+                    p.processes[currentProcess].output.first += "|.";
+                    p.processes[currentProcess].output.second--;
+                }
 
                 if (remainingBurstTime[currentProcess] > quantum[l])
                 {
+                    for (int x = 0; x < quantum[l]; x++)
+                        cout << p.processes[currentProcess].pid << " ";
+
                     currentTime += quantum[l];
+                    last[currentProcess] = currentTime;
                     remainingBurstTime[currentProcess] -= quantum[l];
+                    for (int o = 0; o < quantum[l]; o++)
+                    {
+                        p.processes[currentProcess].output.first += "|*";
+                        p.processes[currentProcess].output.second--;
+                    }
                 }
                 else
                 {
+                    for (int y = 0; y < remainingBurstTime[currentProcess]; y++)
+                        cout << p.processes[currentProcess].pid << " ";
+
                     currentTime += remainingBurstTime[currentProcess];
+                    last[currentProcess] = currentTime;
+                    for (int o = 0; o < remainingBurstTime[currentProcess]; o++)
+                    {
+                        p.processes[currentProcess].output.first += "|*";
+                        p.processes[currentProcess].output.second--;
+                    }
                     remainingBurstTime[currentProcess] = 0;
                 }
 
