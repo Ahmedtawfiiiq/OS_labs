@@ -50,6 +50,10 @@ int main()
         p.scheduleName = "HRRN";
         doHRR(p);
         break;
+    case 6:
+        p.scheduleName = "FB-1";
+        doFBq1(p);
+        break;
     default:
         break;
     }

@@ -41,3 +41,5 @@ void doSPN(Processes &);
 void doSRT(Processes &p);
 
 void doHRR(Processes &p);
+
+void doFBq1(Processes &p);

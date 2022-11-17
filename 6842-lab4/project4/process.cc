@@ -535,6 +535,8 @@ void doFBq1(Processes &p)
     int completedProcesses = 0;
     int numberOfQueues = 5;
 
+    string lastProcess = "";
+
     while (completedProcesses < size)
     {
         for (int l = 0; l < numberOfQueues; l++)
@@ -542,9 +544,12 @@ void doFBq1(Processes &p)
             if (!q[l].empty())
             {
                 currentProcess = q[l].front();
+
+                if (lastProcess == p.processes[currentProcess].pid)
+                    continue;
+
                 cout << p.processes[currentProcess].pid << " ";
 
-                q[l].pop();
                 currentTime += quantum;
                 remainingBurstTime[currentProcess]--;
 
@@ -554,12 +559,39 @@ void doFBq1(Processes &p)
                     q[0].push(arrivedProcesses[i]);
                 }
 
+                // check if the current process is the only process
+                // in all of the queues
+                int numberOfUnemptyQueues = 0;
+                for (int g = 0; g < numberOfQueues; g++)
+                {
+                    if (g == l)
+                        continue;
+                    else
+                    {
+                        if (!q[g].empty())
+                            numberOfUnemptyQueues++;
+                    }
+                }
+
+                bool flag = false;
+                if (numberOfUnemptyQueues > 0 || q[l].size() > 1)
+                {
+                    lastProcess = p.processes[currentProcess].pid;
+                    q[l].pop();
+                }
+
+                else
+                    flag = true;
+
                 if (remainingBurstTime[currentProcess] > 0)
                 {
-                    if (l == numberOfQueues - 1)
-                        q[l].push(currentProcess);
-                    else
-                        q[l + 1].push(currentProcess);
+                    if (flag == false)
+                    {
+                        if (l == numberOfQueues - 1)
+                            q[l].push(currentProcess);
+                        else
+                            q[l + 1].push(currentProcess);
+                    }
                 }
 
                 if (remainingBurstTime[currentProcess] == 0)
