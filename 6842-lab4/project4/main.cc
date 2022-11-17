@@ -54,6 +54,10 @@ int main()
         p.scheduleName = "FB-1";
         doFBq1(p);
         break;
+    case 7:
+        p.scheduleName = "FB-2i";
+        doFBq2i(p);
+        break;
     default:
         break;
     }

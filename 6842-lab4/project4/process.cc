@@ -614,36 +614,135 @@ void doFBq1(Processes &p)
     cout << endl;
 }
 
-// if (q[1].empty() && q[2].empty() && q[3].empty() && q[4].empty() && q[0].size() == 1)
-// {
-//     currentProcess = q[0].front();
-//     q[0].pop();
-//     cout << p.processes[currentProcess].pid << " ";
+void doFBq2i(Processes &p)
+{
+    cout << endl;
 
-//     currentTime += 1;
-//     remainingBurstTime[currentProcess] -= 1;
-//     arrivedProcesses = checkArrivedProcesses(p, currentTime, isCompleted, isArrived);
-//     for (int i = 0; i < arrivedProcesses.size(); i++)
-//     {
-//         q[0].push(arrivedProcesses[i]);
-//     }
+    int currentTime = p.processes[0].at;
+    int currentProcess = -1;
 
-//     if (remainingBurstTime[currentProcess] > 0)
-//     {
-//         q[1].push(currentProcess);
-//     }
+    int quantum[5];
 
-//     if (remainingBurstTime[currentProcess] == 0)
-//     {
-//         p.processes[currentProcess].ct = currentTime;
-//         p.processes[currentProcess].tat = p.processes[currentProcess].ct - p.processes[currentProcess].at;
-//         p.processes[currentProcess].wt = p.processes[currentProcess].tat - p.processes[currentProcess].bt;
-//         p.tatMean += p.processes[currentProcess].tat;
-//         completedProcesses++;
-//         isCompleted[currentProcess] = 1;
-//     }
+    quantum[0] = 1;
+    quantum[1] = 2;
+    quantum[2] = 4;
+    quantum[3] = 8;
+    quantum[4] = 16;
 
-//     continue;
-// }
-// else
-// {
+    int size = p.processes.size();
+
+    vector<int> remainingBurstTime(size);
+    fill(remainingBurstTime.begin(), remainingBurstTime.end(), 0);
+
+    for (int i = 0; i < size; i++)
+    {
+        remainingBurstTime[i] = p.processes[i].bt;
+    }
+
+    vector<int> arrivedProcesses;
+
+    vector<int> isCompleted(size);
+    fill(isCompleted.begin(), isCompleted.end(), 0);
+
+    vector<int> isArrived(size);
+    fill(isArrived.begin(), isArrived.end(), 0);
+
+    queue<int> q[5];
+
+    // we need to call it every time we change the current time
+    arrivedProcesses = checkArrivedProcesses(p, currentTime, isCompleted, isArrived);
+    for (int i = 0; i < arrivedProcesses.size(); i++)
+    {
+        q[0].push(arrivedProcesses[i]);
+    }
+
+    int completedProcesses = 0;
+    int numberOfQueues = 5;
+
+    string lastProcess = "";
+
+    while (completedProcesses < size)
+    {
+        for (int l = 0; l < numberOfQueues; l++)
+        {
+            if (!q[l].empty())
+            {
+                currentProcess = q[l].front();
+
+                if (lastProcess == p.processes[currentProcess].pid)
+                    continue;
+
+                for (int y = 0; y < quantum[l]; y++)
+                    cout << p.processes[currentProcess].pid << " ";
+
+                if (remainingBurstTime[currentProcess] > quantum[l])
+                {
+                    currentTime += quantum[l];
+                    remainingBurstTime[currentProcess] -= quantum[l];
+                }
+                else
+                {
+                    currentTime += remainingBurstTime[currentProcess];
+                    remainingBurstTime[currentProcess] = 0;
+                }
+
+                arrivedProcesses = checkArrivedProcesses(p, currentTime, isCompleted, isArrived);
+                for (int i = 0; i < arrivedProcesses.size(); i++)
+                {
+                    q[0].push(arrivedProcesses[i]);
+                }
+
+                // check if the current process is the only process
+                // in all of the queues
+                int numberOfUnemptyQueues = 0;
+                for (int g = 0; g < numberOfQueues; g++)
+                {
+                    if (g == l)
+                        continue;
+                    else
+                    {
+                        if (!q[g].empty())
+                            numberOfUnemptyQueues++;
+                    }
+                }
+
+                bool flag = false;
+                if (numberOfUnemptyQueues > 0 || q[l].size() > 1)
+                {
+                    lastProcess = p.processes[currentProcess].pid;
+                    q[l].pop();
+                }
+
+                else
+                    flag = true;
+
+                if (remainingBurstTime[currentProcess] > 0)
+                {
+                    if (flag == false)
+                    {
+                        if (l == numberOfQueues - 1)
+                            q[l].push(currentProcess);
+                        else
+                            q[l + 1].push(currentProcess);
+                    }
+                }
+
+                if (remainingBurstTime[currentProcess] == 0)
+                {
+                    p.processes[currentProcess].ct = currentTime;
+                    p.processes[currentProcess].tat = p.processes[currentProcess].ct - p.processes[currentProcess].at;
+                    p.processes[currentProcess].wt = p.processes[currentProcess].tat - p.processes[currentProcess].bt;
+                    p.tatMean += p.processes[currentProcess].tat;
+                    completedProcesses++;
+                    isCompleted[currentProcess] = 1;
+                }
+
+                break;
+            }
+        }
+    }
+    p.tatMean /= size;
+
+    cout << endl;
+    cout << endl;
+}
