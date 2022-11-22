@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/6842-lab4.dir/main.cc.o CMakeFiles/6842-lab4.dir/algorithms.cc.o CMakeFiles/6842-lab4.dir/tokenizer.cc.o CMakeFiles/6842-lab4.dir/process.cc.o  -o lab3 

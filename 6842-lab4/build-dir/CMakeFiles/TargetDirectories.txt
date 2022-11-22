@@ -1,7 +1,0 @@
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/install/strip.dir
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/install/local.dir
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/install.dir
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/list_install_components.dir
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/rebuild_cache.dir
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/edit_cache.dir
-/home/ahmed/Documents/os-labs/OS_labs/6842-lab4/build-dir/CMakeFiles/6842-lab4.dir
