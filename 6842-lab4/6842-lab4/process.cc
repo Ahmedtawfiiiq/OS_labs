@@ -432,44 +432,54 @@ void doSRT(Processes &p)
 
 void doHRR(Processes &p)
 {
-    double currentTime = p.processes[0].at;
-    int totalBurstTime = 0;
+    int currentProcess = -1;
+    double currentTime = 0;
+    int completedProcesses = 0;
     int size = p.processes.size();
+    int numberOfReadyProcesses = 0;
 
     vector<int> completed(size);
     fill(completed.begin(), completed.end(), 0);
 
-    for (int i = 0; i < p.processes.size(); i++)
+    while (completedProcesses < size)
     {
-        totalBurstTime += p.processes[i].at;
-    }
-
-    for (currentTime = p.processes[0].at; currentTime < totalBurstTime;)
-    {
-        float ratio = numeric_limits<int>::min();
+        float ratio = -1;
         float currentHighestRatio;
 
-        int currentProcess;
         for (int i = 0; i < size; i++)
         {
             if (p.processes[i].at <= currentTime && completed[i] != 1)
-            {
-                currentHighestRatio = (p.processes[i].bt + (currentTime - p.processes[i].at)) / p.processes[i].bt;
-
-                if (ratio < currentHighestRatio)
-                {
-                    ratio = currentHighestRatio;
-                    currentProcess = i;
-                }
-            }
+                numberOfReadyProcesses++;
         }
 
-        currentTime += p.processes[currentProcess].bt;
-        p.processes[currentProcess].ct = currentTime;
-        p.processes[currentProcess].wt = currentTime - p.processes[currentProcess].at - p.processes[currentProcess].bt;
-        p.processes[currentProcess].tat = currentTime - p.processes[currentProcess].at;
-        p.tatMean += p.processes[currentProcess].tat;
-        completed[currentProcess] = 1;
+        if (numberOfReadyProcesses > 0)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (p.processes[i].at <= currentTime && completed[i] != 1)
+                {
+                    currentHighestRatio = (p.processes[i].bt + (currentTime - p.processes[i].at)) / p.processes[i].bt;
+                    if (currentHighestRatio > ratio)
+                    {
+                        ratio = currentHighestRatio;
+                        currentProcess = i;
+                    }
+                }
+            }
+
+            currentTime += p.processes[currentProcess].bt;
+            p.processes[currentProcess].ct = currentTime;
+            p.processes[currentProcess].tat = p.processes[currentProcess].ct - p.processes[currentProcess].at;
+            p.processes[currentProcess].wt = p.processes[currentProcess].tat - p.processes[currentProcess].bt;
+            p.tatMean += p.processes[currentProcess].tat;
+            completed[currentProcess] = 1;
+            completedProcesses++;
+
+            numberOfReadyProcesses = 0;
+        }
+
+        else
+            currentTime++;
     }
 
     for (int i = 0; i < p.processes.size(); i++)
