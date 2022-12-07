@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <semaphore.h>
 
 #include <iostream>
@@ -37,7 +38,7 @@ void *producer(void *args)
     {
         // Produce
         float item = priceGenerator(mean, standard_deviation);
-        // sleep(1);
+        sleep(1);
 
         // Add to the buffer
         sem_wait(&semEmpty);
