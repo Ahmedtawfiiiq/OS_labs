@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
     pthread_t th[THREAD_NUM];
     pthread_mutex_init(&mutexBuffer, NULL);
-    sem_init(&semEmpty, 0, 10);
+    sem_init(&semEmpty, 0, BUFFERSIZE);
     sem_init(&semFull, 0, 0);
     int i;
     for (i = 0; i < THREAD_NUM; i++)
