@@ -6,28 +6,49 @@
 #include <time.h>
 #include <semaphore.h>
 
-#define THREAD_NUM 8
+#include <iostream>
+#include <random>
+#include <chrono>
+#include <vector>
+
+using namespace std;
+
+float mean = 0.0;
+float standard_deviation = 0.0;
+
+#define THREAD_NUM 21 // 20 thread for producers and 1 thread for consumer
 
 sem_t semEmpty;
 sem_t semFull;
 
 pthread_mutex_t mutexBuffer;
 
-int buffer[10];
+#define BUFFERSIZE 10
+
+vector<float> buffer(BUFFERSIZE, 0.0);
 int count = 0;
+
+float priceGenerator(float mean, float standard_deviation)
+{
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    normal_distribution<float> distribution(mean, standard_deviation);
+
+    return distribution(generator);
+}
 
 void *producer(void *args)
 {
-    while (1)
+    while (true)
     {
         // Produce
-        int x = rand() % 100;
-        sleep(1);
+        float item = priceGenerator(mean, standard_deviation);
+        // sleep(1);
 
         // Add to the buffer
         sem_wait(&semEmpty);
         pthread_mutex_lock(&mutexBuffer);
-        buffer[count] = x;
+        buffer[count] = item;
         count++;
         pthread_mutex_unlock(&mutexBuffer);
         sem_post(&semFull);
@@ -36,27 +57,31 @@ void *producer(void *args)
 
 void *consumer(void *args)
 {
-    while (1)
+    while (true)
     {
-        int y;
+        float item;
 
         // Remove from the buffer
         sem_wait(&semFull);
         pthread_mutex_lock(&mutexBuffer);
-        y = buffer[count - 1];
+        item = buffer[count - 1];
         count--;
         pthread_mutex_unlock(&mutexBuffer);
         sem_post(&semEmpty);
 
         // Consume
-        printf("Got %d\n", y);
-        sleep(1);
+        cout << "Got " << item << endl;
+        // sleep(1);
     }
 }
 
 int main(int argc, char *argv[])
 {
-    srand(time(NULL));
+    cout << "mean:" << endl;
+    cin >> mean;
+    cout << "standard deviation:" << endl;
+    cin >> standard_deviation;
+
     pthread_t th[THREAD_NUM];
     pthread_mutex_init(&mutexBuffer, NULL);
     sem_init(&semEmpty, 0, 10);
