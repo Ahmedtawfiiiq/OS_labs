@@ -1,15 +1,17 @@
 #include <sys/types.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
 #include <errno.h>
 #include <pthread.h>
-#include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <time.h>
+#include <sys/msg.h>
+#include <sys/shm.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <iostream>
 #include <random>
@@ -21,29 +23,24 @@
 #define SEM_SPOOL_SIGNAL_KEY "sem-spool-signal-key"
 
 #define THREAD_NUM 21
-#define BUFFER_SIZE 10
 
 using namespace std;
 
-vector<float> buffer(BUFFER_SIZE, 0.0);
-int count = 0;
-
-class product
+struct product
 {
-public:
-    string name;
+    char name[30];
     float mean;
     float standard_deviation;
+    float item_value;
 };
 
-class products
-{
-public:
-    vector<product> items;
-};
+#define MEMORY_SIZE sizeof(struct product) * 30
+
+int shmID;
+struct product *p;
+int count = 0;
 
 int mutex_sem, empty_sem, full_sem;
-int item_counter = -1;
 
 float priceGenerator(float mean, float standard_deviation)
 {
@@ -52,43 +49,6 @@ float priceGenerator(float mean, float standard_deviation)
     normal_distribution<float> distribution(mean, standard_deviation);
 
     return distribution(generator);
-}
-
-product getProduct(int index)
-{
-    product p1;
-    p1.name = "gas";
-    p1.mean = 30;
-    p1.standard_deviation = 0.3;
-
-    product p2;
-    p2.name = "oil";
-    p2.mean = 12;
-    p2.standard_deviation = 0.1;
-
-    product p3;
-    p3.name = "cars";
-    p3.mean = 100;
-    p3.standard_deviation = 0.01;
-
-    product p4;
-    p4.name = "clothes";
-    p4.mean = 87;
-    p4.standard_deviation = 0.7;
-
-    product p5;
-    p5.name = "food";
-    p5.mean = 150;
-    p5.standard_deviation = 1.9;
-
-    products p;
-    p.items.push_back(p1);
-    p.items.push_back(p2);
-    p.items.push_back(p3);
-    p.items.push_back(p4);
-    p.items.push_back(p5);
-
-    return p.items[index];
 }
 
 void *producer(void *args)
@@ -117,10 +77,16 @@ void *producer(void *args)
             exit(1);
         }
 
+        p = (struct product *)shmat(shmID, NULL, 0);
+
         // critical section
-        buffer[count] = item;
+        p[count].item_value = item;
         count++;
-        cout << "produced item: " << item << endl;
+        cout << endl;
+        cout << "produced item: " << item;
+        cout << endl;
+        shmdt(p);
+        // end of critical section
 
         asem[0].sem_op = 1;
         if (semop(mutex_sem, asem, 1) == -1)
@@ -166,8 +132,11 @@ void *consumer(void *args)
         }
 
         // critical section
-        item = buffer[count - 1];
+        p = (struct product *)shmat(shmID, NULL, 0);
+        item = p[count - 1].item_value;
         count--;
+        shmdt(p);
+        // end of critical section
 
         asem[0].sem_op = 1;
         if (semop(mutex_sem, asem, 1) == -1)
@@ -184,9 +153,10 @@ void *consumer(void *args)
         }
 
         // consume
-        cout << endl
-             << "consumer item:  " << item << endl;
-        sleep(1);
+        cout << endl;
+        cout << "consumer item:  " << item;
+        cout << endl;
+        // sleep(1);
     }
 }
 
@@ -232,7 +202,7 @@ int main()
         exit(1);
     }
     // giving initial values
-    sem_attr.val = BUFFER_SIZE; // buffer size
+    sem_attr.val = MEMORY_SIZE;
     if (semctl(empty_sem, 0, SETVAL, sem_attr) == -1)
     {
         perror(" semctl SETVAL ");
@@ -255,6 +225,16 @@ int main()
     if (semctl(full_sem, 0, SETVAL, sem_attr) == -1)
     {
         perror(" semctl SETVAL ");
+        exit(1);
+    }
+
+    // 1000 -> key
+    // sizeof(struct nota) * 30 -> size
+    shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
+    printf("shmID = %d\n", shmID);
+    if (shmID < 0)
+    {
+        printf("failed to create shm\n");
         exit(1);
     }
 
