@@ -120,6 +120,7 @@ void *producer(void *args)
         // critical section
         buffer[count] = item;
         count++;
+        cout << "produced item: " << item << endl;
 
         asem[0].sem_op = 1;
         if (semop(mutex_sem, asem, 1) == -1)
@@ -183,8 +184,9 @@ void *consumer(void *args)
         }
 
         // consume
-        cout << "Got " << item << endl;
-        // sleep(1);
+        cout << endl
+             << "consumer item:  " << item << endl;
+        sleep(1);
     }
 }
 

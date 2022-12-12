@@ -38,15 +38,18 @@ void *producer(void *args)
     {
         // Produce
         float item = priceGenerator(mean, standard_deviation);
-        sleep(1);
 
         // Add to the buffer
         sem_wait(&semEmpty);
         pthread_mutex_lock(&mutexBuffer);
         buffer[count] = item;
         count++;
+        cout << "produced item: " << item << endl;
+
         pthread_mutex_unlock(&mutexBuffer);
         sem_post(&semFull);
+
+        sleep(1);
     }
 }
 
@@ -67,8 +70,9 @@ void *consumer(void *args)
         sem_post(&semEmpty);
 
         // Consume
-        cout << "Got " << item << endl;
-        // sleep(1);
+        cout << endl
+             << "consumed item:  " << item << endl;
+        sleep(1);
     }
 }
 
