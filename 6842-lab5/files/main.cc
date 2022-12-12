@@ -38,7 +38,6 @@ struct product
 
 int shmID;
 struct product *p;
-int count = 0;
 
 int mutex_sem, empty_sem, full_sem;
 
@@ -49,6 +48,45 @@ float priceGenerator(float mean, float standard_deviation)
     normal_distribution<float> distribution(mean, standard_deviation);
 
     return distribution(generator);
+}
+
+int front = -1, rear = -1;
+
+void enQueue(float value)
+{
+    p = (struct product *)shmat(shmID, NULL, 0);
+
+    if (rear == MEMORY_SIZE - 1)
+        printf("\nqueue is full");
+    else
+    {
+        if (front == -1)
+            front = 0;
+        rear++;
+        p[rear].item_value = value;
+        printf("\nproduced item -> %f", value);
+    }
+
+    shmdt(p);
+}
+
+float deQueue()
+{
+    float item;
+    p = (struct product *)shmat(shmID, NULL, 0);
+
+    if (front == -1)
+        printf("\nqueue is empty");
+    else
+    {
+        item = p[front].item_value;
+        front++;
+        if (front > rear)
+            front = rear = -1;
+    }
+
+    shmdt(p);
+    return item;
 }
 
 void *producer(void *args)
@@ -77,15 +115,8 @@ void *producer(void *args)
             exit(1);
         }
 
-        p = (struct product *)shmat(shmID, NULL, 0);
-
         // critical section
-        p[count].item_value = item;
-        count++;
-        cout << endl;
-        cout << "produced item: " << item;
-        cout << endl;
-        shmdt(p);
+        enQueue(item);
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -132,10 +163,7 @@ void *consumer(void *args)
         }
 
         // critical section
-        p = (struct product *)shmat(shmID, NULL, 0);
-        item = p[count - 1].item_value;
-        count--;
-        shmdt(p);
+        item = deQueue();
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -153,9 +181,7 @@ void *consumer(void *args)
         }
 
         // consume
-        cout << endl;
-        cout << "consumer item:  " << item;
-        cout << endl;
+        printf("\nconsumed item -> %f", item);
         // sleep(1);
     }
 }
@@ -229,7 +255,7 @@ int main()
     }
 
     // 1000 -> key
-    // sizeof(struct nota) * 30 -> size
+    // sizeof(struct product) * 30 -> size
     shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
     printf("shmID = %d\n", shmID);
     if (shmID < 0)

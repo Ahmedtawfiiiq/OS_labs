@@ -6,12 +6,47 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#include <vector>
+#include <queue>
+
+using namespace std;
 
 struct nota
 {
-    int n;
+    float n;
     char text[30];
 };
+
+int deleteElement(int id, int n, float x)
+{
+    struct nota *evernota = (struct nota *)shmat(id, NULL, 0);
+
+    if (evernota[n - 1].n == x)
+    {
+        shmdt(evernota);
+        return (n - 1);
+    }
+
+    // int prev = arr[n - 1], i;
+    struct nota prev = evernota[n - 1];
+    int i;
+    for (i = n - 2; i >= 0 && evernota[i].n != x; i--)
+    {
+        struct nota curr = evernota[i];
+        evernota[i] = prev;
+        prev = curr;
+    }
+
+    if (i < 0)
+    {
+        shmdt(evernota);
+        return 0;
+    }
+
+    evernota[i] = prev;
+    shmdt(evernota);
+    return (n - 1);
+}
 
 int main()
 {
@@ -30,8 +65,11 @@ int main()
 
     evernota = (struct nota *)shmat(shmID, NULL, 0);
 
-    printf("received value: %d\n", evernota[1].n);
-    printf("received value: %s\n", evernota[1].text);
+    printf("received value before: %f\n", evernota[0].n);
+
+    int n = deleteElement(shmID, n, evernota[0].n);
+
+    printf("received value after: %f\n", evernota[0].n);
 
     shmdt(evernota);
 

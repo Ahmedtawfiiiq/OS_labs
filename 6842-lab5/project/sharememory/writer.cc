@@ -5,10 +5,15 @@
 #include <sys/shm.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
+#include <queue>
+#include <iostream>
+
+using namespace std;
 
 struct nota
 {
-    int n;
+    float n;
     char text[30];
 };
 
@@ -29,11 +34,11 @@ int main()
 
     evernota = (struct nota *)shmat(shmID, NULL, 0);
 
-    evernota[1].n = 66;
-    strcpy(evernota[1].text, "hello");
+    evernota[0].n = 21.4;
+    evernota[1].n = 47.8;
 
-    printf("sent value: %d\n", evernota[1].n);
-    printf("sent value: %s\n", evernota[1].text);
+    printf("sent value: %f\n", evernota[0].n);
+    printf("sent value: %f\n", evernota[1].n);
 
     shmdt(evernota);
 
