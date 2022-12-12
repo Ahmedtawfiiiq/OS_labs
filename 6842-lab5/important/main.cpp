@@ -56,11 +56,13 @@ void *consumer(void *args)
     {
         float item;
 
-        // Remove from the buffer
         sem_wait(&semFull);
         pthread_mutex_lock(&mutexBuffer);
+
+        // Remove from the buffer
         item = buffer[count - 1];
         count--;
+
         pthread_mutex_unlock(&mutexBuffer);
         sem_post(&semEmpty);
 
@@ -78,9 +80,11 @@ int main(int argc, char *argv[])
     cin >> standard_deviation;
 
     pthread_t th[THREAD_NUM];
+
     pthread_mutex_init(&mutexBuffer, NULL);
     sem_init(&semEmpty, 0, BUFFERSIZE);
     sem_init(&semFull, 0, 0);
+
     int i;
     for (i = 0; i < THREAD_NUM; i++)
     {
@@ -106,6 +110,7 @@ int main(int argc, char *argv[])
             perror("Failed to join thread");
         }
     }
+
     sem_destroy(&semEmpty);
     sem_destroy(&semFull);
     pthread_mutex_destroy(&mutexBuffer);
