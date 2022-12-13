@@ -13,18 +13,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <iostream>
 #include <random>
 #include <chrono>
-#include <vector>
 
-#define SEM_MUTEX_KEY "sem-mutex-key"
-#define SEM_BUFFER_COUNT_KEY "sem-buffer-count-key"
-#define SEM_SPOOL_SIGNAL_KEY "sem-spool-signal-key"
+using namespace std;
+
+#define MUTEX_SEM_KEY "mutex-sem-key"
+#define EMPTY_SEM_KEY "empty-sem-key"
+#define FULL_SEM_KEY "full-sem-key"
 
 #define THREAD_NUM 21
 
-using namespace std;
+#define MEMORY_SIZE sizeof(struct product) * 30
 
 struct product
 {
@@ -34,21 +34,10 @@ struct product
     float item_value;
 };
 
-#define MEMORY_SIZE sizeof(struct product) * 30
-
 int shmID;
 struct product *p;
 
 int mutex_sem, empty_sem, full_sem;
-
-float priceGenerator(float mean, float standard_deviation)
-{
-    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-    default_random_engine generator(seed);
-    normal_distribution<float> distribution(mean, standard_deviation);
-
-    return distribution(generator);
-}
 
 int front = -1, rear = -1;
 
@@ -87,6 +76,15 @@ float deQueue()
 
     shmdt(p);
     return item;
+}
+
+float priceGenerator(float mean, float standard_deviation)
+{
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+    normal_distribution<float> distribution(mean, standard_deviation);
+
+    return distribution(generator);
 }
 
 void *producer(void *args)
@@ -198,7 +196,7 @@ int main()
     } sem_attr;
 
     // mutex semaphore
-    if ((s_key = ftok(SEM_MUTEX_KEY, 'a')) == -1)
+    if ((s_key = ftok(MUTEX_SEM_KEY, 'a')) == -1)
     {
         perror("ftok");
         exit(1);
@@ -217,7 +215,7 @@ int main()
     }
 
     // empty semaphore
-    if ((s_key = ftok(SEM_BUFFER_COUNT_KEY, 'a')) == -1)
+    if ((s_key = ftok(EMPTY_SEM_KEY, 'a')) == -1)
     {
         perror("ftok");
         exit(1);
@@ -236,7 +234,7 @@ int main()
     }
 
     // full semaphore
-    if ((s_key = ftok(SEM_SPOOL_SIGNAL_KEY, 'a')) == -1)
+    if ((s_key = ftok(FULL_SEM_KEY, 'a')) == -1)
     {
         perror("ftok");
         exit(1);
@@ -257,7 +255,6 @@ int main()
     // 1000 -> key
     // sizeof(struct product) * 30 -> size
     shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
-    printf("shmID = %d\n", shmID);
     if (shmID < 0)
     {
         printf("failed to create shm\n");
@@ -289,23 +286,6 @@ int main()
         {
             perror("Failed to join thread");
         }
-    }
-
-    // remove semaphores
-    if (semctl(mutex_sem, 0, IPC_RMID) == -1)
-    {
-        perror("semctl IPC_RMID");
-        exit(1);
-    }
-    if (semctl(empty_sem, 0, IPC_RMID) == -1)
-    {
-        perror("semctl IPC_RMID");
-        exit(1);
-    }
-    if (semctl(full_sem, 0, IPC_RMID) == -1)
-    {
-        perror("semctl IPC_RMID");
-        exit(1);
     }
 
     return 0;

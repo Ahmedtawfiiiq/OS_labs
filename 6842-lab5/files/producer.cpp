@@ -1,4 +1,6 @@
-void *consumer(void *args)
+#include "producer.hpp"
+
+void *producer(void *args)
 {
     struct sembuf asem[1];
     asem[0].sem_num = 0;
@@ -7,12 +9,13 @@ void *consumer(void *args)
 
     while (true)
     {
-        float item;
+        // produce
+        float item = priceGenerator(30, 0.04);
 
         asem[0].sem_op = -1;
-        if (semop(full_sem, asem, 1) == -1)
+        if (semop(empty_sem, asem, 1) == -1)
         {
-            perror("semop: full_sem");
+            perror("semop: empty_sem");
             exit(1);
         }
 
@@ -24,7 +27,7 @@ void *consumer(void *args)
         }
 
         // critical section
-        item = deQueue();
+        enQueue(item);
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -35,14 +38,12 @@ void *consumer(void *args)
         }
 
         asem[0].sem_op = 1;
-        if (semop(empty_sem, asem, 1) == -1)
+        if (semop(full_sem, asem, 1) == -1)
         {
-            perror("semop: empty_sem");
+            perror("semop: full_sem");
             exit(1);
         }
 
-        // consume
-        printf("\nconsumed item -> %f", item);
-        // sleep(1);
+        sleep(1);
     }
 }
