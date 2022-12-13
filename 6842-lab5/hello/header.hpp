@@ -22,9 +22,7 @@ using namespace std;
 #define EMPTY_SEM_KEY "empty-sem-key"
 #define FULL_SEM_KEY "full-sem-key"
 
-#define THREAD_NUM 21
-
-#define MEMORY_SIZE sizeof(struct product) * 30
+#define MEMORY_SIZE sizeof(struct product) * 50
 
 struct product
 {

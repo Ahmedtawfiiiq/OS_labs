@@ -1,9 +1,10 @@
 #include "header.hpp"
 
-extern int shmID;
-extern struct product *p;
-extern int mutex_sem, empty_sem, full_sem;
-extern int front, rear;
+int shmID, shmIDQ;
+int *v;
+struct product *p;
+int mutex_sem, empty_sem, full_sem;
+int front, rear;
 
 float priceGenerator(float mean, float standard_deviation)
 {
@@ -17,6 +18,10 @@ float priceGenerator(float mean, float standard_deviation)
 void enQueue(float value)
 {
     p = (struct product *)shmat(shmID, NULL, 0);
+    v = (int *)shmat(shmIDQ, NULL, 0);
+
+    front = v[0];
+    rear = v[1];
 
     if (rear == MEMORY_SIZE - 1)
         printf("\nqueue is full");
@@ -29,7 +34,11 @@ void enQueue(float value)
         printf("\nproduced item -> %f", value);
     }
 
+    v[0] = front;
+    v[1] = rear;
+
     shmdt(p);
+    shmdt(v);
 }
 
 void *producer(void *args)
@@ -78,4 +87,74 @@ void *producer(void *args)
 
         sleep(1);
     }
+}
+
+int main()
+{
+    /* for semaphore */
+    key_t s_key;
+
+    // mutex semaphore
+    if ((s_key = ftok(MUTEX_SEM_KEY, 'a')) == -1)
+    {
+        perror("ftok");
+        exit(1);
+    }
+    if ((mutex_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    {
+        perror("semget");
+        exit(1);
+    }
+
+    // empty semaphore
+    if ((s_key = ftok(EMPTY_SEM_KEY, 'a')) == -1)
+    {
+        perror("ftok");
+        exit(1);
+    }
+    if ((empty_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    {
+        perror("semget");
+        exit(1);
+    }
+
+    // full semaphore
+    if ((s_key = ftok(FULL_SEM_KEY, 'a')) == -1)
+    {
+        perror("ftok");
+        exit(1);
+    }
+    if ((full_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    {
+        perror("semget");
+        exit(1);
+    }
+
+    shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
+    if (shmID < 0)
+    {
+        printf("failed to create shm\n");
+        exit(1);
+    }
+
+    shmIDQ = shmget(1001, sizeof(int) * 2, 0666 | IPC_CREAT);
+    if (shmIDQ < 0)
+    {
+        printf("failed to create shm\n");
+        exit(1);
+    }
+
+    pthread_t th[1];
+
+    if (pthread_create(&th[1], NULL, &producer, NULL) != 0)
+    {
+        perror("Failed to create thread");
+    }
+
+    if (pthread_join(th[1], NULL) != 0)
+    {
+        perror("Failed to join thread");
+    }
+
+    return 0;
 }
