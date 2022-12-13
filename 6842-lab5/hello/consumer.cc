@@ -150,7 +150,7 @@ int main()
         exit(1);
     }
 
-    shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
+    shmID = shmget(1000, MEMORY_SIZE, 0666 | IPC_CREAT);
     if (shmID < 0)
     {
         printf("failed to create shm\n");
