@@ -22,6 +22,8 @@ using namespace std;
 #define EMPTY_SEM_KEY "empty-sem-key"
 #define FULL_SEM_KEY "full-sem-key"
 
+#define THREAD_NUM 21
+
 #define MEMORY_SIZE sizeof(struct product) * 30
 
 struct product
@@ -31,6 +33,3 @@ struct product
     float standard_deviation;
     float item_value;
 };
-
-extern int front, rear;
-extern int mutex_sem, empty_sem, full_sem;

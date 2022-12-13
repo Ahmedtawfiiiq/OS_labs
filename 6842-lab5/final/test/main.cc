@@ -1,8 +1,12 @@
 #include "header.hpp"
 
+int shmID;
+struct product *p;
 int mutex_sem, empty_sem, full_sem;
-
 int front = -1, rear = -1;
+
+void *consumer(void *args);
+void *producer(void *args);
 
 int main()
 {
@@ -21,7 +25,7 @@ int main()
         perror("ftok");
         exit(1);
     }
-    if ((mutex_sem = semget(s_key, 1, 0666 | IPC_CREAT)) == -1)
+    if ((mutex_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -40,7 +44,7 @@ int main()
         perror("ftok");
         exit(1);
     }
-    if ((empty_sem = semget(s_key, 1, 0666 | IPC_CREAT)) == -1)
+    if ((empty_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -59,7 +63,7 @@ int main()
         perror("ftok");
         exit(1);
     }
-    if ((full_sem = semget(s_key, 1, 0666 | IPC_CREAT)) == -1)
+    if ((full_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -70,6 +74,42 @@ int main()
     {
         perror(" semctl SETVAL ");
         exit(1);
+    }
+
+    // 1000 -> key
+    // sizeof(struct product) * 30 -> size
+    shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
+    if (shmID < 0)
+    {
+        printf("failed to create shm\n");
+        exit(1);
+    }
+
+    pthread_t th[THREAD_NUM];
+
+    for (int i = 0; i < THREAD_NUM; i++)
+    {
+        if (i > 0)
+        {
+            if (pthread_create(&th[i], NULL, &producer, NULL) != 0)
+            {
+                perror("Failed to create thread");
+            }
+        }
+        else
+        {
+            if (pthread_create(&th[i], NULL, &consumer, NULL) != 0)
+            {
+                perror("Failed to create thread");
+            }
+        }
+    }
+    for (int i = 0; i < THREAD_NUM; i++)
+    {
+        if (pthread_join(th[i], NULL) != 0)
+        {
+            perror("Failed to join thread");
+        }
     }
 
     return 0;
