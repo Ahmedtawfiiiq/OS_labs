@@ -15,27 +15,22 @@
 
 #include <random>
 #include <chrono>
+#include <vector>
 
 using namespace std;
-
-#define PERMISSIONS_FLAG 0660 | IPC_CREAT
 
 #define MUTEX_SEM_KEY 10
 #define EMPTY_SEM_KEY 20
 #define FULL_SEM_KEY 30
 
 #define MEMORY_1_KEY 40
-#define MEMORY_1_SIZE 0
+#define MEMORY_1_SIZE sizeof(float) * 10
 
 #define MEMORY_2_KEY 50
-#define MEMORY_2_SIZE 0
+#define MEMORY_2_SIZE sizeof(int) * 1
 
-#define MEMORY_ITEMS 5
+#define PERMISSIONS_FLAG 0660 | IPC_CREAT
 
-// struct product
-// {
-//     char name[30];
-//     float mean;
-//     float standard_deviation;
-//     float item_value;
-// };
+#define THREAD_NUM 21
+
+#define MEMORY_ITEMS 10

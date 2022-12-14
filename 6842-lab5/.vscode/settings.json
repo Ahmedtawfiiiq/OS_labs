@@ -2,6 +2,8 @@
     "files.associations": {
         "*.txt": "raw",
         "iostream": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "initializer_list": "cpp"
     }
 }

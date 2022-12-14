@@ -6,19 +6,14 @@
 #include <chrono>
 #include <vector>
 
-using namespace std;
-
-float mean = 0.0;
-float standard_deviation = 0.0;
-
 #define THREAD_NUM 21 // 20 thread for producers and 1 thread for consumer
+#define BUFFERSIZE 10
+
+using namespace std;
 
 sem_t semEmpty;
 sem_t semFull;
-
 pthread_mutex_t mutexBuffer;
-
-#define BUFFERSIZE 10
 
 vector<float> buffer(BUFFERSIZE, 0.0);
 int count = 0;
@@ -37,19 +32,20 @@ void *producer(void *args)
     while (true)
     {
         // Produce
-        float item = priceGenerator(mean, standard_deviation);
+        float item = priceGenerator(30, 0.04);
 
-        // Add to the buffer
         sem_wait(&semEmpty);
         pthread_mutex_lock(&mutexBuffer);
+        // critical section
         buffer[count] = item;
         count++;
         cout << "produced item: " << item << endl;
+        // end of critical section
 
         pthread_mutex_unlock(&mutexBuffer);
         sem_post(&semFull);
 
-        sleep(1);
+        // sleep(1);
     }
 }
 
@@ -62,27 +58,22 @@ void *consumer(void *args)
         sem_wait(&semFull);
         pthread_mutex_lock(&mutexBuffer);
 
-        // Remove from the buffer
+        // critical section
         item = buffer[count - 1];
         count--;
+        // end of critical section
 
         pthread_mutex_unlock(&mutexBuffer);
         sem_post(&semEmpty);
 
         // Consume
-        cout << endl
-             << "consumed item:  " << item << endl;
-        sleep(1);
+        cout << "consumed item:  " << item << endl;
+        // sleep(1);
     }
 }
 
 int main(int argc, char *argv[])
 {
-    cout << "mean:" << endl;
-    cin >> mean;
-    cout << "standard deviation:" << endl;
-    cin >> standard_deviation;
-
     pthread_t th[THREAD_NUM];
 
     pthread_mutex_init(&mutexBuffer, NULL);

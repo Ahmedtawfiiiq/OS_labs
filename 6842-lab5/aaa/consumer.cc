@@ -1,39 +1,11 @@
 #include "header.hpp"
 
-int shmID, shmIDQ;
-int *v;
-struct product *p;
 int mutex_sem, empty_sem, full_sem;
-int front, rear;
+int shm_id, c_id;
+float *p;
+int *count;
 
-float deQueue()
-{
-    float item;
-    p = (struct product *)shmat(shmID, NULL, 0);
-    v = (int *)shmat(shmIDQ, NULL, 0);
-
-    front = v[0];
-    rear = v[1];
-
-    if (front == -1)
-        printf("\nqueue is empty");
-    else
-    {
-        item = p[front].item_value;
-        front++;
-        if (front > rear)
-            front = rear = -1;
-    }
-
-    v[0] = front;
-    v[1] = rear;
-
-    shmdt(p);
-    shmdt(v);
-    return item;
-}
-
-void *consumer(void *args)
+void consumer()
 {
     struct sembuf asem[1];
     asem[0].sem_num = 0;
@@ -59,7 +31,13 @@ void *consumer(void *args)
         }
 
         // critical section
-        item = deQueue();
+        p = (float *)shmat(shm_id, NULL, 0);
+        count = (int *)shmat(c_id, NULL, 0);
+        printf("\nitem count -> %d", count[0]);
+        item = p[count[0] - 1];
+        count[0]--;
+        shmdt(p);
+        shmdt(count);
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -84,8 +62,6 @@ void *consumer(void *args)
 
 int main()
 {
-    /* for semaphore */
-    key_t s_key;
     union semun
     {
         int val;
@@ -94,12 +70,7 @@ int main()
     } sem_attr;
 
     // mutex semaphore
-    if ((s_key = ftok(MUTEX_SEM_KEY, 'a')) == -1)
-    {
-        perror("ftok");
-        exit(1);
-    }
-    if ((mutex_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    if ((mutex_sem = semget(MUTEX_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -113,18 +84,13 @@ int main()
     }
 
     // empty semaphore
-    if ((s_key = ftok(EMPTY_SEM_KEY, 'a')) == -1)
-    {
-        perror("ftok");
-        exit(1);
-    }
-    if ((empty_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    if ((empty_sem = semget(EMPTY_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
     }
     // giving initial values
-    sem_attr.val = MEMORY_SIZE;
+    sem_attr.val = MEMORY_ITEMS;
     if (semctl(empty_sem, 0, SETVAL, sem_attr) == -1)
     {
         perror(" semctl SETVAL ");
@@ -132,12 +98,7 @@ int main()
     }
 
     // full semaphore
-    if ((s_key = ftok(FULL_SEM_KEY, 'a')) == -1)
-    {
-        perror("ftok");
-        exit(1);
-    }
-    if ((full_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    if ((full_sem = semget(FULL_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -150,37 +111,34 @@ int main()
         exit(1);
     }
 
-    shmID = shmget(1000, MEMORY_SIZE, 0666 | IPC_CREAT);
-    if (shmID < 0)
+    // shared memory for buffer
+    shm_id = shmget(MEMORY_1_KEY, MEMORY_1_SIZE, PERMISSIONS_FLAG);
+
+    // shared memory for count
+    c_id = shmget(MEMORY_2_KEY, MEMORY_2_SIZE, PERMISSIONS_FLAG);
+
+    count = (int *)shmat(c_id, NULL, 0);
+    count[0] = 0;
+
+    shmdt(count);
+
+    consumer();
+
+    // remove semaphores
+    if (semctl(mutex_sem, 0, IPC_RMID) == -1)
     {
-        printf("failed to create shm\n");
+        perror("semctl IPC_RMID");
         exit(1);
     }
-
-    shmIDQ = shmget(1001, sizeof(int) * 2, 0666 | IPC_CREAT);
-    if (shmIDQ < 0)
+    if (semctl(empty_sem, 0, IPC_RMID) == -1)
     {
-        printf("failed to create shm\n");
+        perror("semctl IPC_RMID");
         exit(1);
     }
-
-    v = (int *)shmat(shmIDQ, NULL, 0);
-
-    v[0] = -1;
-    v[1] = -1;
-
-    shmdt(v);
-
-    pthread_t th[1];
-
-    if (pthread_create(&th[1], NULL, &consumer, NULL) != 0)
+    if (semctl(full_sem, 0, IPC_RMID) == -1)
     {
-        perror("Failed to create thread");
-    }
-
-    if (pthread_join(th[1], NULL) != 0)
-    {
-        perror("Failed to join thread");
+        perror("semctl IPC_RMID");
+        exit(1);
     }
 
     return 0;

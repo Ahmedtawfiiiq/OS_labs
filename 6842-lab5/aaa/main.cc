@@ -15,68 +15,30 @@
 
 #include <random>
 #include <chrono>
+#include <vector>
 
 using namespace std;
 
-#define MUTEX_SEM_KEY "mutex-sem-key"
-#define EMPTY_SEM_KEY "empty-sem-key"
-#define FULL_SEM_KEY "full-sem-key"
+#define MUTEX_SEM_KEY 10
+#define EMPTY_SEM_KEY 20
+#define FULL_SEM_KEY 30
+
+#define MEMORY_1_KEY 40
+#define MEMORY_1_SIZE sizeof(float) * 10
+
+#define MEMORY_2_KEY 50
+#define MEMORY_2_SIZE sizeof(int) * 1
+
+#define PERMISSIONS_FLAG 0660 | IPC_CREAT
 
 #define THREAD_NUM 21
 
-#define MEMORY_SIZE sizeof(struct product) * 30
-
-struct product
-{
-    char name[30];
-    float mean;
-    float standard_deviation;
-    float item_value;
-};
-
-int shmID;
-struct product *p;
+#define MEMORY_ITEMS 10
 
 int mutex_sem, empty_sem, full_sem;
-
-int front = -1, rear = -1;
-
-void enQueue(float value)
-{
-    p = (struct product *)shmat(shmID, NULL, 0);
-
-    if (rear == MEMORY_SIZE - 1)
-        printf("\nqueue is full");
-    else
-    {
-        if (front == -1)
-            front = 0;
-        rear++;
-        p[rear].item_value = value;
-        printf("\nproduced item -> %f", value);
-    }
-
-    shmdt(p);
-}
-
-float deQueue()
-{
-    float item;
-    p = (struct product *)shmat(shmID, NULL, 0);
-
-    if (front == -1)
-        printf("\nqueue is empty");
-    else
-    {
-        item = p[front].item_value;
-        front++;
-        if (front > rear)
-            front = rear = -1;
-    }
-
-    shmdt(p);
-    return item;
-}
+int shm_id, c_id;
+float *p;
+int *count;
 
 float priceGenerator(float mean, float standard_deviation)
 {
@@ -114,7 +76,14 @@ void *producer(void *args)
         }
 
         // critical section
-        enQueue(item);
+        p = (float *)shmat(shm_id, NULL, 0);
+        count = (int *)shmat(c_id, NULL, 0);
+        printf("\nitem count -> %d", count[0]);
+        p[count[0]] = item;
+        count[0]++;
+        shmdt(p);
+        shmdt(count);
+        printf("\nproduced item -> %f", item);
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -161,7 +130,13 @@ void *consumer(void *args)
         }
 
         // critical section
-        item = deQueue();
+        p = (float *)shmat(shm_id, NULL, 0);
+        count = (int *)shmat(c_id, NULL, 0);
+        printf("\nitem count -> %d", count[0]);
+        item = p[count[0] - 1];
+        count[0]--;
+        shmdt(p);
+        shmdt(count);
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -196,12 +171,7 @@ int main()
     } sem_attr;
 
     // mutex semaphore
-    if ((s_key = ftok(MUTEX_SEM_KEY, 'a')) == -1)
-    {
-        perror("ftok");
-        exit(1);
-    }
-    if ((mutex_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    if ((mutex_sem = semget(MUTEX_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -215,18 +185,13 @@ int main()
     }
 
     // empty semaphore
-    if ((s_key = ftok(EMPTY_SEM_KEY, 'a')) == -1)
-    {
-        perror("ftok");
-        exit(1);
-    }
-    if ((empty_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    if ((empty_sem = semget(EMPTY_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
     }
     // giving initial values
-    sem_attr.val = MEMORY_SIZE;
+    sem_attr.val = MEMORY_ITEMS;
     if (semctl(empty_sem, 0, SETVAL, sem_attr) == -1)
     {
         perror(" semctl SETVAL ");
@@ -234,12 +199,7 @@ int main()
     }
 
     // full semaphore
-    if ((s_key = ftok(FULL_SEM_KEY, 'a')) == -1)
-    {
-        perror("ftok");
-        exit(1);
-    }
-    if ((full_sem = semget(s_key, 1, 0660 | IPC_CREAT)) == -1)
+    if ((full_sem = semget(FULL_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
         exit(1);
@@ -252,14 +212,16 @@ int main()
         exit(1);
     }
 
-    // 1000 -> key
-    // sizeof(struct product) * 30 -> size
-    shmID = shmget(1000, sizeof(struct product) * 30, 0666 | IPC_CREAT);
-    if (shmID < 0)
-    {
-        printf("failed to create shm\n");
-        exit(1);
-    }
+    // shared memory for buffer
+    shm_id = shmget(MEMORY_1_KEY, MEMORY_1_SIZE, PERMISSIONS_FLAG);
+
+    // shared memory for count
+    c_id = shmget(MEMORY_2_KEY, MEMORY_2_SIZE, PERMISSIONS_FLAG);
+
+    count = (int *)shmat(c_id, NULL, 0);
+    count[0] = 0;
+
+    shmdt(count);
 
     pthread_t th[THREAD_NUM];
 
@@ -286,6 +248,23 @@ int main()
         {
             perror("Failed to join thread");
         }
+    }
+
+    // remove semaphores
+    if (semctl(mutex_sem, 0, IPC_RMID) == -1)
+    {
+        perror("semctl IPC_RMID");
+        exit(1);
+    }
+    if (semctl(empty_sem, 0, IPC_RMID) == -1)
+    {
+        perror("semctl IPC_RMID");
+        exit(1);
+    }
+    if (semctl(full_sem, 0, IPC_RMID) == -1)
+    {
+        perror("semctl IPC_RMID");
+        exit(1);
     }
 
     return 0;
