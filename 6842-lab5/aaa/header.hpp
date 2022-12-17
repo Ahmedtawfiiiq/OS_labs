@@ -16,6 +16,7 @@
 #include <random>
 #include <chrono>
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
@@ -29,8 +30,14 @@ using namespace std;
 #define MEMORY_2_KEY 50
 #define MEMORY_2_SIZE sizeof(int) * 1
 
+#define MEMORY_3_KEY 60
+#define MEMORY_3_SIZE sizeof(float) * 1
+
 #define PERMISSIONS_FLAG 0660 | IPC_CREAT
 
 #define THREAD_NUM 21
 
 #define MEMORY_ITEMS 10
+
+#define READINGS 5
+#define COMMODITIES_NUMBER 11

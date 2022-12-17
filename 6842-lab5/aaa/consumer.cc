@@ -1,9 +1,21 @@
 #include "header.hpp"
 
 int mutex_sem, empty_sem, full_sem;
-int shm_id, c_id;
-float *p;
+int shm_id, c_id, avg_id;
+
+typedef struct commodities
+{
+    char name[50] = "";
+    float price = 0.0;
+    float prevPrice[4];
+    int prevPriceCount = 0;
+} commodity;
+
+commodity arr[11];
+
+commodity *p;
 int *count;
+float *avg;
 
 void consumer()
 {
@@ -31,10 +43,10 @@ void consumer()
         }
 
         // critical section
-        p = (float *)shmat(shm_id, NULL, 0);
+        p = (commodity *)shmat(shm_id, NULL, 0);
         count = (int *)shmat(c_id, NULL, 0);
         printf("\nitem count -> %d", count[0]);
-        item = p[count[0] - 1];
+        item = p[count[0] - 1].price;
         count[0]--;
         shmdt(p);
         shmdt(count);
@@ -60,7 +72,7 @@ void consumer()
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     union semun
     {
@@ -116,11 +128,15 @@ int main()
 
     // shared memory for count
     c_id = shmget(MEMORY_2_KEY, MEMORY_2_SIZE, PERMISSIONS_FLAG);
-
     count = (int *)shmat(c_id, NULL, 0);
     count[0] = 0;
-
     shmdt(count);
+
+    // shared memory for average
+    avg_id = shmget(MEMORY_3_KEY, MEMORY_3_SIZE, PERMISSIONS_FLAG);
+    avg = (float *)shmat(avg_id, NULL, 0);
+    avg[0] = 0;
+    shmdt(avg);
 
     consumer();
 
