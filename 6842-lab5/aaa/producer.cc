@@ -1,18 +1,20 @@
 #include "header.hpp"
 
 int mutex_sem, empty_sem, full_sem;
-int shm_id, c_id, avg_id;
+int shm_id, c_id;
+
+unordered_map<string, int> umap1;
+unordered_map<int, string> umap2;
 
 typedef struct commodities
 {
+    int number = 0;
     float price[READINGS]; // current price and previous 4 prices
+    float average[2];
 } commodity;
-
-commodity arr[COMMODITIES_NUMBER];
 
 commodity *p;
 int *count;
-float *avg;
 
 float priceGenerator(float mean, float standard_deviation)
 {
@@ -23,17 +25,78 @@ float priceGenerator(float mean, float standard_deviation)
     return distribution(generator);
 }
 
-float calculateAverage(commodity c)
+void modifyPrice(commodity *c, int *i, float item)
 {
-    float average = 0.0;
-
-    int i;
-    for (i = 0; i < 5 && c.price[i] != 0; i++)
+    switch (*i)
     {
-        average += c.price[i];
+    case 0:
+        c->price[*i] = item;
+        break;
+
+    case 1:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = item;
+        break;
+    case 2:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = item;
+        break;
+    case 3:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = c->price[*i - 3];
+        c->price[*i - 3] = item;
+        break;
+    case 4:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = c->price[*i - 3];
+        c->price[*i - 3] = c->price[*i - 4];
+        c->price[*i - 4] = item;
+        break;
+    case 5:
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = c->price[*i - 3];
+        c->price[*i - 3] = c->price[*i - 4];
+        c->price[*i - 4] = c->price[*i - 5];
+        c->price[*i - 5] = item;
+        *i -= 1;
+        break;
     }
-    average /= i;
-    return average;
+
+    *i += 1;
+}
+
+void modifyAverage(commodity *c, int *j, float average)
+{
+    switch (*j)
+    {
+    case 0:
+        c->average[*j] = average;
+        break;
+
+    case 1:
+        c->average[*j] = c->average[*j - 1];
+        c->average[*j - 1] = average;
+        *j -= 1;
+        break;
+    }
+
+    *j += 1;
+}
+
+float calculateAverage(commodity *c)
+{
+    float sum = 0.0;
+    int i = 0;
+    while (c->price[i] != 0 && i < READINGS)
+    {
+        sum += c->price[i];
+        i++;
+    }
+
+    return sum / i;
 }
 
 void producer(int commodity_number, float mean, float standard_deviation, float sleep_interval)
@@ -43,10 +106,19 @@ void producer(int commodity_number, float mean, float standard_deviation, float 
     asem[0].sem_op = 0;
     asem[0].sem_flg = 0;
 
+    commodity c;
+    for (int i = 0; i < READINGS; i++)
+    {
+        c.price[i] = 0.0;
+    }
+    int i = 0;
+    int j = 0;
+
     while (true)
     {
         // produce
         float item = priceGenerator(mean, standard_deviation);
+        fprintf(stderr, "%s: generating a new value %f\n", umap2[commodity_number].c_str(), item);
 
         asem[0].sem_op = -1;
         if (semop(empty_sem, asem, 1) == -1)
@@ -54,6 +126,8 @@ void producer(int commodity_number, float mean, float standard_deviation, float 
             perror("semop: empty_sem");
             exit(1);
         }
+
+        fprintf(stderr, "%s: trying to get mutex on shared buffer\n", umap2[commodity_number].c_str());
 
         asem[0].sem_op = -1;
         if (semop(mutex_sem, asem, 1) == -1)
@@ -63,21 +137,35 @@ void producer(int commodity_number, float mean, float standard_deviation, float 
         }
 
         // critical section
+
+        fprintf(stderr, "%s: placing %f on shared buffer\n", umap2[commodity_number].c_str(), item);
+
         p = (commodity *)shmat(shm_id, NULL, 0);
         count = (int *)shmat(c_id, NULL, 0);
-        avg = (float *)shmat(avg_id, NULL, 0);
 
-        arr[commodity_number].price[0] = item;
+        // printf("\nitem count -> %d", count[0]);
 
-        float average = calculateAverage(arr[commodity_number]);
-        avg[commodity_number] = average;
+        c.number = commodity_number;
+        modifyPrice(&c, &i, item);
+        modifyAverage(&c, &j, calculateAverage(&c));
 
-        printf("\nitem count -> %d", count[0]);
-        p[count[0]].price = item;
+        // printf("\n");
+        // for (int i = 0; i < READINGS; i++)
+        // {
+        //     printf("%f ", c.price[i]);
+        // }
+
+        // printf("\n");
+        // for (int i = 0; i < 2; i++)
+        // {
+        //     printf("%f ", c.average[i]);
+        // }
+
+        p[count[0]] = c;
         count[0]++;
+
         shmdt(p);
         shmdt(count);
-        printf("\nproduced item -> %f", item);
         // end of critical section
 
         asem[0].sem_op = 1;
@@ -94,7 +182,8 @@ void producer(int commodity_number, float mean, float standard_deviation, float 
             exit(1);
         }
 
-        sleep(sleep_interval);
+        fprintf(stderr, "%s: sleeping for %f ms\n", umap2[commodity_number].c_str(), sleep_interval);
+        sleep(sleep_interval/1000);
     }
 }
 
@@ -114,15 +203,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    // empty semaphoretypedef struct commodities
-    {
-        int number;
-        float price = 0.0;
-        float prevPrice[4];
-        int prevPriceCount = 0;
-    }
-    commodity;
-
+    // empty semaphore
     if ((empty_sem = semget(EMPTY_SEM_KEY, 1, 0660 | IPC_CREAT)) == -1)
     {
         perror("semget");
@@ -142,21 +223,29 @@ int main(int argc, char *argv[])
     // shared memory for count
     c_id = shmget(MEMORY_2_KEY, MEMORY_2_SIZE, PERMISSIONS_FLAG);
 
-    // shared memory for average
-    avg_id = shmget(MEMORY_3_KEY, MEMORY_3_SIZE, PERMISSIONS_FLAG);
+    umap1["ALUMINIUM"] = 0;
+    umap1["COPPER"] = 1;
+    umap1["COTTON"] = 2;
+    umap1["CRUDEOIL"] = 3;
+    umap1["GOLD"] = 4;
+    umap1["LEAD"] = 5;
+    umap1["MENTHAOIL"] = 6;
+    umap1["NATURALGAS"] = 7;
+    umap1["NICKEL"] = 8;
+    umap1["SILVER"] = 9;
+    umap1["ZINC"] = 10;
 
-    unordered_map<string, int> umap;
-    umap["GOLD"] = 0;
-    umap["SILVER"] = 1;
-    umap["CRUDEOIL"] = 2;
-    umap["NATURALGAS"] = 3;
-    umap["ALUMINIUM"] = 4;
-    umap["COPPER"] = 5;
-    umap["NICKEL"] = 6;
-    umap["LEAD"] = 7;
-    umap["ZINC"] = 8;
-    umap["MENTHAOIL"] = 9;
-    umap["COTTON"] = 10;
+    umap2[0] = "ALUMINIUM";
+    umap2[1] = "COPPER";
+    umap2[2] = "COTTON";
+    umap2[3] = "CRUDEOIL";
+    umap2[4] = "GOLD";
+    umap2[5] = "LEAD";
+    umap2[6] = "MENTHAOIL";
+    umap2[7] = "NATURALGAS";
+    umap2[8] = "NICKEL";
+    umap2[9] = "SILVER";
+    umap2[10] = "ZINC";
 
     // argv[0] // program name
     // argv[1] // commodity name
@@ -168,7 +257,7 @@ int main(int argc, char *argv[])
     string commodity_name;
     commodity_name = argv[1];
 
-    int commodity_number = umap[commodity_name];
+    int commodity_number = umap1[commodity_name];
 
     float mean;
     mean = atof(argv[2]);

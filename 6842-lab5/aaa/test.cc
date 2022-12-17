@@ -1,32 +1,141 @@
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
+#include <unistd.h>
+#include <sys/time.h>
 
 #define SIZE 5
 
 typedef struct commodities
 {
     float price[5];
+    float average[2];
 } commodity;
 
 using namespace std;
 
-void calculateAverage(commodity *c)
+float calculateAverage(commodity *c)
 {
-    float average = 0.0;
-    for (int i = 0; i < 5 && c->price[i] != 0; i++)
+    float sum = 0.0;
+    int i = 0;
+    while (c->price[i] != 0 && i < 5)
     {
-        
+        sum += c->price[i];
+        i++;
     }
+
+    return sum / i;
+}
+
+void modify(commodity *c, int *i, float item)
+{
+    switch (*i)
+    {
+    case 0:
+        c->price[*i] = item;
+        break;
+
+    case 1:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = item;
+        break;
+    case 2:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = item;
+        break;
+    case 3:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = c->price[*i - 3];
+        c->price[*i - 3] = item;
+        break;
+    case 4:
+        c->price[*i] = c->price[*i - 1];
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = c->price[*i - 3];
+        c->price[*i - 3] = c->price[*i - 4];
+        c->price[*i - 4] = item;
+        break;
+    case 5:
+        c->price[*i - 1] = c->price[*i - 2];
+        c->price[*i - 2] = c->price[*i - 3];
+        c->price[*i - 3] = c->price[*i - 4];
+        c->price[*i - 4] = c->price[*i - 5];
+        c->price[*i - 5] = item;
+        *i -= 1;
+        break;
+    }
+
+    *i += 1;
+}
+
+void modifyAverage(commodity *c, int *j, float average)
+{
+    switch (*j)
+    {
+    case 0:
+        c->average[*j] = average;
+        break;
+
+    case 1:
+        c->average[*j] = c->average[*j - 1];
+        c->average[*j - 1] = average;
+        *j -= 1;
+        break;
+    }
+
+    *j += 1;
 }
 
 int main(int argc, char *argv[])
 {
-    commodity c;
-    c.price[0] = 12.6;
-    c.price[1] = 3.1;
+    fprintf(stderr, "error\n");
 
-    calculateAverage(&c);
+    // commodity c;
+
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     c.price[i] = 0;
+    // }
+
+    // for (int i = 0; i < 2; i++)
+    // {
+    //     c.average[i] = 0;
+    // }
+
+    // int i = 0;
+    // int j = 0;
+
+    // float item = 8.3;
+    // float average;
+
+    // while (true)
+    // {
+    //     modify(&c, &i, item);
+    //     average = calculateAverage(&c);
+    //     cout << "current average " << average << endl;
+    //     modifyAverage(&c, &j, average);
+
+    //     cout << "items" << endl;
+    //     for (int i = 0; i < 5; i++)
+    //     {
+    //         cout << c.price[i] << " ";
+    //     }
+    //     cout << endl;
+
+    //     cout << "average" << endl;
+    //     for (int i = 0; i < 2; i++)
+    //     {
+    //         cout << c.average[i] << " ";
+    //     }
+    //     cout << endl;
+
+    //     item += 6.1;
+    //     sleep(1);
+    // }
+
+    // cout << calculateAverage(&c) << endl;
 
     // string name = argv[1];
     // cout << name << endl;

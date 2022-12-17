@@ -1,21 +1,21 @@
 #include "header.hpp"
 
 int mutex_sem, empty_sem, full_sem;
-int shm_id, c_id, avg_id;
+int shm_id, c_id;
+
+unordered_map<int, string> umap;
 
 typedef struct commodities
 {
-    char name[50] = "";
-    float price = 0.0;
-    float prevPrice[4];
-    int prevPriceCount = 0;
+    int number = 0;
+    float price[READINGS]; // current price and previous 4 prices
+    float average[2];
 } commodity;
 
-commodity arr[11];
+commodity arr[COMMODITIES_NUMBER];
 
 commodity *p;
 int *count;
-float *avg;
 
 void consumer()
 {
@@ -26,7 +26,9 @@ void consumer()
 
     while (true)
     {
-        float item;
+        // float item_price;
+        int item_number;
+        // float average;
 
         asem[0].sem_op = -1;
         if (semop(full_sem, asem, 1) == -1)
@@ -45,9 +47,12 @@ void consumer()
         // critical section
         p = (commodity *)shmat(shm_id, NULL, 0);
         count = (int *)shmat(c_id, NULL, 0);
-        printf("\nitem count -> %d", count[0]);
-        item = p[count[0] - 1].price;
+
+        // item_price = p[count[0] - 1].price[0];
+        item_number = p[count[0] - 1].number;
+        arr[item_number] = p[count[0] - 1];
         count[0]--;
+
         shmdt(p);
         shmdt(count);
         // end of critical section
@@ -67,8 +72,36 @@ void consumer()
         }
 
         // consume
-        printf("\nconsumed item -> %f", item);
-        // sleep(1);
+        p = (commodity *)shmat(shm_id, NULL, 0);
+
+        printf("\e[1;1H\e[2J"); // clear the screen and place the cursor at the top of the screen
+        printf("+-------------------------------------+\n");
+        printf("| Currency      |  Price   | AvgPrice |\n");
+        printf("+-------------------------------------+\n");
+        for (int i = 0; i < COMMODITIES_NUMBER; i++)
+        {
+            if (arr[i].price[0] > arr[i].price[1] && arr[i].average[0] > arr[i].average[1])
+                printf("| %s| \033[1;32m%7.2f↑ \033[0m| \033[1;32m%7.2f↑ \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].price[0] > arr[i].price[1] && arr[i].average[0] < arr[i].average[1])
+                printf("| %s| \033[1;32m%7.2f↑ \033[0m| \033[1;31m%7.2f↓ \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].price[0] < arr[i].price[1] && arr[i].average[0] > arr[i].average[1])
+                printf("| %s| \033[1;31m%7.2f↓ \033[0m| \033[1;32m%7.2f↑ \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].price[0] < arr[i].price[1] && arr[i].average[0] < arr[i].average[1])
+                printf("| %s| \033[1;31m%7.2f↓ \033[0m| \033[1;31m%7.2f↓ \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].price[0] > arr[i].price[1])
+                printf("| %s| \033[1;32m%7.2f↑ \033[0m| \033[0m%7.2f  \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].price[0] < arr[i].price[1])
+                printf("| %s| \033[1;31m%7.2f↓ \033[0m| \033[0m%7.2f  \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].average[0] > arr[i].average[1])
+                printf("| %s| \033[0m%7.2f  | \033[1;32m%7.2f↑ \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else if (arr[i].average[0] < arr[i].average[1])
+                printf("| %s| \033[0m%7.2f  | \033[1;31m%7.2f↓ \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+            else
+                printf("| %s| \033[1;34m%7.2f  \033[0m| \033[1;34m%7.2f  \033[0m|\n", umap[i].c_str(), arr[i].price[0], arr[i].average[0]);
+        }
+        printf("+-------------------------------------+\n");
+
+        shmdt(p);
     }
 }
 
@@ -132,11 +165,17 @@ int main(int argc, char *argv[])
     count[0] = 0;
     shmdt(count);
 
-    // shared memory for average
-    avg_id = shmget(MEMORY_3_KEY, MEMORY_3_SIZE, PERMISSIONS_FLAG);
-    avg = (float *)shmat(avg_id, NULL, 0);
-    avg[0] = 0;
-    shmdt(avg);
+    umap[0] = "ALUMINIUM     ";
+    umap[1] = "COPPER        ";
+    umap[2] = "COTTON        ";
+    umap[3] = "CRUDEOIL      ";
+    umap[4] = "GOLD          ";
+    umap[5] = "LEAD          ";
+    umap[6] = "MENTHAOIL     ";
+    umap[7] = "NATURALGAS    ";
+    umap[8] = "NICKEL        ";
+    umap[9] = "SILVER        ";
+    umap[10] = "ZINC          ";
 
     consumer();
 
