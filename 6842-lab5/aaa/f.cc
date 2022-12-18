@@ -1,35 +1,39 @@
-/*
- * This program calculates the time required to
- * execute the program specified as its first argument.
- * The time is printed in seconds, on standard out.
- */
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <time.h>
+#include <iostream>
 
-#define BILLION 1000000000L;
-
-int main(int argc, char **argv)
+typedef struct commodities
 {
-    struct timespec start, stop;
-    double accum;
+    int number = 0;
+    float price[5]; // current price and previous 4 prices
+    float average[2];
+} commodity;
 
-    if (clock_gettime(CLOCK_REALTIME, &start) == -1)
-    {
-        perror("clock gettime");
-        exit(EXIT_FAILURE);
-    }
+using namespace std;
 
-    system(argv[1]);
+int main()
+{
+    cout << sizeof(commodity) << endl;
+    // int arr[5] = {1, 2, 3, 4, 5};
+    // int count = 5;
 
-    if (clock_gettime(CLOCK_REALTIME, &stop) == -1)
-    {
-        perror("clock gettime");
-        exit(EXIT_FAILURE);
-    }
+    // for (int i = 0; i < count; i++)
+    // {
+    //     cout << arr[i] << " ";
+    // }
+    // cout << endl;
 
-    accum = (stop.tv_sec - start.tv_sec) + (stop.tv_nsec - start.tv_nsec) / BILLION;
-    printf("%lf\n", accum);
-    return (EXIT_SUCCESS);
+    // cout << arr[0] << endl;
+
+    // for (int i = 0; i < count - 1; i++)
+    // {
+    //     arr[i] = arr[i + 1];
+    // }
+
+    // count--;
+
+    // for (int i = 0; i < count; i++)
+    // {
+    //     cout << arr[i] << " ";
+    // }
+    // cout << endl;
+    return 0;
 }

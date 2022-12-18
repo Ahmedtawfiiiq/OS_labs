@@ -90,7 +90,22 @@ void modifyAverage(commodity *c, int *j, float average)
 
 int main(int argc, char *argv[])
 {
-    fprintf(stderr, "error\n");
+    // fprintf(stderr, "error\n");
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    ios_base::sync_with_stdio(false);
+
+    for (int i = 0; i < 1000000; i++)
+    {
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    double time_taken;
+    time_taken = (end.tv_sec - start.tv_sec) * 1e9;
+    time_taken = (time_taken + (end.tv_nsec - start.tv_nsec)) * 1e-9;
+
+    cout << time_taken << endl;
 
     // commodity c;
 
