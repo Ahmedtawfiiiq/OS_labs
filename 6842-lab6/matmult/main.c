@@ -36,7 +36,7 @@ void printMatrix(int *X, int nrow, int ncol)
     printf("\n");
 }
 
-void *v1(void *row)
+void *v2(void *row)
 {
     int currentRow = *((int *)row);
     printf("current row -> %d\n", currentRow);
@@ -53,7 +53,7 @@ void *v1(void *row)
     printf("\n");
 }
 
-void *v2(void *row_column)
+void *v1(void *row_column)
 {
     int currentRow = ((int *)row_column)[0];
     int currentColumn = ((int *)row_column)[1];
@@ -85,7 +85,7 @@ int main()
     printMatrix(data.A, data.l, data.m);
     printMatrix(data.B, data.m, data.n);
 
-    int version = 0; // 0 for version 1 and 1 for version 2
+    int version = 1; // 0 for version 1 and 1 for version 2
     int number_of_threads = 0;
     pthread_t *thread;
     switch (version)
@@ -97,7 +97,7 @@ int main()
         {
             int *row = malloc(sizeof(*row));
             *row = i;
-            pthread_create(&thread[i], NULL, v1, row);
+            pthread_create(&thread[i], NULL, v2, row);
         }
         break;
     case 1:
@@ -110,7 +110,7 @@ int main()
                 int *row_column = malloc(sizeof(*row_column) * 2);
                 row_column[0] = i;
                 row_column[1] = j;
-                pthread_create(&thread[i], NULL, v2, row_column);
+                pthread_create(&thread[i], NULL, v1, row_column);
             }
         }
         break;
